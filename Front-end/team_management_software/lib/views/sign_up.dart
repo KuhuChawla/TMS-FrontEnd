@@ -15,7 +15,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -24,44 +23,42 @@ class _SignUpPageState extends State<SignUpPage> {
 
   validateAndSignUp() {
     var form = formKey.currentState?.validate();
-    if (form!) {
-
-    }
+    if (form!) {}
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
         body: SingleChildScrollView(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-              Widget>[
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
             Container(
               child: Stack(
                 children: <Widget>[
                   Container(
-                    padding:  EdgeInsets.fromLTRB(12.sp, 80.sp, 0.0, 0.0),
-                    child:  Text(
+                    padding: EdgeInsets.fromLTRB(12.sp, 80.sp, 0.0, 0.0),
+                    child: Text(
                       'Signup',
-                      style:
-                      TextStyle(fontSize: 60.sp, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 60.sp, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Container(
                     padding: EdgeInsets.fromLTRB(212.sp, 85.sp, 0.0, 0.0),
-                    child:  Text(
+                    child: Text(
                       '.',
                       style: TextStyle(
                           fontSize: 60.sp,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green),
+                          color: Colors.yellow),
                     ),
                   )
                 ],
               ),
             ),
             Container(
-                padding:  EdgeInsets.only(top: 30.sp, left: 20.sp, right: 20.sp),
+                padding: EdgeInsets.only(top: 30.sp, left: 20.sp, right: 20.sp),
                 child: Form(
                   key: formKey,
                   child: Column(
@@ -81,14 +78,16 @@ class _SignUpPageState extends State<SignUpPage> {
                             // hintText: 'EMAIL',
                             // hintStyle: ,
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.green))),
+                                borderSide: BorderSide(color: Colors.yellow))),
                       ),
                       SizedBox(height: 1.h),
                       TextFormField(
                         controller: passwordController,
                         validator: (val) {
                           val ??= "";
-                          return val.length >= 6 ? null : "Enter a valid password";
+                          return val.length >= 6
+                              ? null
+                              : "Enter a valid password";
                         },
                         decoration: const InputDecoration(
                             labelText: 'PASSWORD ',
@@ -97,27 +96,27 @@ class _SignUpPageState extends State<SignUpPage> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.green))),
+                                borderSide: BorderSide(color: Colors.yellow))),
                         obscureText: true,
                       ),
                       SizedBox(height: 5.h),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           validateAndSignUp();
                         },
                         child: Container(
                             height: 6.2.h,
                             child: Material(
                               borderRadius: BorderRadius.circular(11.sp),
-                              shadowColor: Colors.greenAccent,
-                              color: Colors.green,
+                              shadowColor: Colors.yellowAccent,
+                              color: Colors.yellow[500],
                               elevation: 7.0,
-                              child:  Center(
+                              child: Center(
                                 child: Text(
                                   'SIGNUP',
                                   style: TextStyle(
-                                    fontSize: 7.sp,
-                                      color: Colors.white,
+                                      fontSize: 7.sp,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Montserrat'),
                                 ),
@@ -138,20 +137,18 @@ class _SignUpPageState extends State<SignUpPage> {
                               borderRadius: BorderRadius.circular(11.sp)),
                           child: InkWell(
                             onTap: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+                              Navigator.pushReplacement(context,
+                                  MaterialPageRoute(builder: (context) {
                                 return SignInPage();
                               }));
                             },
-                            child:
-                             Center(
-                              child: Text('Already have an account? SignIn',
+                            child: Center(
+                              child: Text('Already have an account? LogIn',
                                   style: TextStyle(
-                                    fontSize: 7.sp,
+                                      fontSize: 7.sp,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Montserrat')),
                             ),
-
-
                           ),
                         ),
                       ),
@@ -159,8 +156,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ],
                   ),
                 )),
-
           ]),
-        ));
+    ));
   }
 }
