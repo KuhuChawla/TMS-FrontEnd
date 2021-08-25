@@ -1,11 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'homescreen.dart';
+import 'welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  final TextStyle styleTextUnderTheLoader = TextStyle(
+  final TextStyle styleTextUnderTheLoader = const TextStyle(
       fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black);
 
   @override
@@ -13,7 +12,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final splashDelay = 10;
+  final splashDelay = 100;
 
   @override
   void initState() {
@@ -29,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void navigationPage() {
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+        MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
   }
 
   @override
@@ -94,16 +93,6 @@ class _SplashScreenState extends State<SplashScreen> {
                       )
                     ],
                   )),
-                ),
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      CircularProgressIndicator(),
-                      Container(
-                        height: 10,
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
