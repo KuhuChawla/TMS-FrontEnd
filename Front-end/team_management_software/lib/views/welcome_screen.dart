@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:team_management_software/controller/http_functions.dart';
 import 'package:team_management_software/views/sign_in.dart';
 import 'package:sizer/sizer.dart';
 import 'package:team_management_software/views/sign_up.dart';
-
 import '../constants.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class WelcomeScreen extends StatelessWidget {
+   WelcomeScreen({Key? key}) : super(key: key);
+ final HttpFunctions httpFunctions=HttpFunctions();
   @override
   build(BuildContext context) {
     return Scaffold(
@@ -34,24 +35,7 @@ class HomeScreen extends StatelessWidget {
               ),
               Column(
                 children: <Widget>[
-                  // Container(
-                  //     height: 6.2.h,
-                  //     child: Material(
-                  //       borderRadius: BorderRadius.circular(11.sp),
-                  //       shadowColor: Colors.greenAccent,
-                  //       color: Colors.green,
-                  //       elevation: 7.0,
-                  //       child:  Center(
-                  //         child: Text(
-                  //           'SIGN IN',
-                  //           style: TextStyle(
-                  //               fontSize: 9.sp,
-                  //               color: Colors.white,
-                  //               fontWeight: FontWeight.bold,
-                  //               fontFamily: 'Montserrat'),
-                  //         ),
-                  //       ),
-                  //     )),
+
                   MaterialButton(
                     color: Constants.buttonColor
                     ,
@@ -61,8 +45,10 @@ class HomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                        // side: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(14.sp)),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SignInPage()));
+                    onPressed: () async {
+                      // var response= await  httpFunctions.signInUser();
+                      // print("response from welcome screen $response");
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignInPage()));
                     },
                     child: Text(
                       "SIGN IN",
@@ -82,7 +68,9 @@ class HomeScreen extends StatelessWidget {
                           side: const BorderSide(color: Colors.black),
                           borderRadius: BorderRadius.circular(14.sp)),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUpPage() ));
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignUpPage() ));
+                        // httpFunctions.registerUser(
+                        // );
                       },
                       child: Text(
                         "SIGN UP",

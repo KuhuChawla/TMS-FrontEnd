@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:team_management_software/controller/http_functions.dart';
 import 'package:team_management_software/views/components/role_dropdown.dart';
 import 'package:team_management_software/views/sign_in.dart';
 import 'package:sizer/sizer.dart';
 import '../constants.dart';
+import 'home_screen.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -10,6 +14,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -21,6 +27,8 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController companyEmailController = TextEditingController();
   TextEditingController activationCodeController = TextEditingController();
 
+  String dropDownValue="";
+
   var error = [false, false, false];
   errorInForm(index) {
     setState(() {
@@ -28,11 +36,41 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
+  setStateFunction() {
+    setState(() {});
+  }
+
   final formKey = GlobalKey<FormState>();
 
-  validateAndSignUp() {
+  validateAndSignUp() async{
     var form = formKey.currentState?.validate();
-    if (form!) {}
+    if (form!) {
+      HttpFunctions httpFunctions = HttpFunctions();
+      String signUpResponse=await  httpFunctions.registerUser(
+        name: nameController.text,
+        username: usernameController.text,
+        password: passwordController.text,
+        passwordConfirm: confirmPasswordController.text,
+        email: emailController.text,
+        phoneNumber: int.parse(phoneController.text),
+        address: addressController.text,
+        companyName: companyNameController.text,
+        companyDescription: companyDescriptionController.text,
+        companyEmail: companyEmailController.text,
+        companyNumber: int.parse(companyPhoneController.text),
+        activationToken: activationCodeController.text,
+        role: dropDownValue
+      );
+      var finalData=jsonDecode(signUpResponse);
+      if(finalData["status"]=="true"){
+        const snackBar =   SnackBar(content: Text("Sign Up successful"),duration: Duration(milliseconds: 500),);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+      }else{
+        const snackBar = SnackBar(content: Text("Unable to sign up"),duration: Duration(milliseconds: 1000),);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
   }
 
   var _index = 0;
@@ -81,18 +119,20 @@ class _SignUpPageState extends State<SignUpPage> {
                         _index != 2
                             ? TextButton(
                                 onPressed: onStepContinue,
-                                child:  Text(
+                                child: Text(
                                   'Next',
-                                  style: TextStyle(color: Constants.buttonColor),
+                                  style:
+                                      TextStyle(color: Constants.buttonColor),
                                 ),
                               )
                             : Container(),
                         _index != 0
                             ? TextButton(
                                 onPressed: onStepCancel,
-                                child:  Text(
+                                child: Text(
                                   'Previous',
-                                  style: TextStyle(color: Constants.buttonColor),
+                                  style:
+                                      TextStyle(color: Constants.buttonColor),
                                 ),
                               )
                             : Container(),
@@ -139,6 +179,19 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: Column(
                           children: <Widget>[
                             TextFormField(
+                              controller: nameController,
+                              validator: (val) {
+                                val ??= " ";
+
+                                val.length >= 4 ? null : errorInForm(0);
+                                return val.length >= 4
+                                    ? null
+                                    : " Enter a valid name";
+                              },
+                              decoration:
+                                  Constants.kTextFormFieldDecoration("NAME"),
+                            ),
+                            TextFormField(
                               controller: usernameController,
                               validator: (val) {
                                 val ??= " ";
@@ -165,16 +218,33 @@ class _SignUpPageState extends State<SignUpPage> {
                                   "PASSWORD"),
                               obscureText: true,
                             ),
+                            TextFormField(
+                              controller: confirmPasswordController,
+                              validator: (val) {
+                                val ??= "";
+                                val.length >= 6 ? null : errorInForm(0);
+                                return val.length >= 6
+                                    ? null
+                                    : "Password do not match";
+                              },
+                              decoration: Constants.kTextFormFieldDecoration(
+                                  "CONFIRM PASSWORD"),
+                              obscureText: true,
+                            ),
                             // SizedBox(height: 1.h),
                             TextFormField(
                               controller: emailController,
                               validator: (val) {
                                 val ??= "";
-                                //TODO VALIDATE THE FORMS FIELDS
-                                val.length >= 6 ? null : errorInForm(0);
-                                return val.length >= 6
+                                RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                                        .hasMatch(val)
                                     ? null
-                                    : "Enter a valid email";
+                                    : errorInForm(0);
+                                return RegExp(
+                                            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                                        .hasMatch(val)
+                                    ? null
+                                    : "Invalid email";
                               },
                               decoration:
                                   Constants.kTextFormFieldDecoration("EMAIL"),
@@ -250,9 +320,15 @@ class _SignUpPageState extends State<SignUpPage> {
                               controller: companyEmailController,
                               validator: (val) {
                                 val ??= "";
-                                return val.length >= 6
+                                RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                                        .hasMatch(val)
                                     ? null
-                                    : "Enter a valid Company Email";
+                                    : errorInForm(1);
+                                return RegExp(
+                                            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                                        .hasMatch(val)
+                                    ? null
+                                    : "Invalid Company Email";
                               },
                               decoration: Constants.kTextFormFieldDecoration(
                                   "COMPANY EMAIL"),
@@ -268,8 +344,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               },
                               decoration: Constants.kTextFormFieldDecoration(
                                   "COMPANY PHONE NUMBER"),
-                            ),
-                            //  SizedBox(height: 1.h),
+                            )
 
                             //  SizedBox(height: 5.h),
                           ],
@@ -284,12 +359,18 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         content: Column(
                           children: [
-                            const DropDownDemo(),
+                            DropDownDemo(
+                              onChangedRole: (String val) {
+                                print("this function is called with value $val");
+                                dropDownValue=val.toLowerCase();
+                              },
+                            ),
                             TextFormField(
                               controller: activationCodeController,
                               validator: (val) {
                                 val ??= "";
-                                return val.length >= 6
+                                val.length >1? null : errorInForm(2);
+                                return val.length>1
                                     ? null
                                     : "Enter a valid Activation Code";
                               },

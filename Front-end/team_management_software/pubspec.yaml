@@ -29,6 +29,7 @@ dependencies:
   animated_text_kit: ^4.2.1
   modal_progress_hud_nsn: ^0.1.0-nullsafety-1
   sizer: ^2.0.13
+  http: ^0.13.3
 
 
 dev_dependencies:

@@ -12,12 +12,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final splashDelay = 100;
+  final splashDelay = 10;
 
   @override
   void initState() {
     super.initState();
-
     _loadWidget();
   }
 
@@ -28,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void navigationPage() {
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+        MaterialPageRoute(builder: (BuildContext context) =>  WelcomeScreen()));
   }
 
   @override
