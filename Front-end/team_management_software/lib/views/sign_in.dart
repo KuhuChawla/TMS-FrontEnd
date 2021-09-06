@@ -31,17 +31,19 @@ class _SignInPageState extends State<SignInPage> {
     var form = formKey.currentState?.validate();
     if (form!) {
       HttpFunctions httpFunctions=HttpFunctions();
-   String signInResponse=await httpFunctions.signInUser(username: userNameController.text,password: passwordController.text);
-   var finalData=jsonDecode(signInResponse);
-   if(finalData["status"]=="true"){
-     final snackBar = SnackBar(content: Text("Sign in successful"),duration: Duration(milliseconds: 500),);
-     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-     Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-   }else{
-     final snackBar = SnackBar(content: Text("Invalid credentials"),duration: Duration(milliseconds: 1000),);
-     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-   }
-
+   // String signInResponse=await httpFunctions.signInUser(username: userNameController.text,password: passwordController.text);
+   // var finalData=jsonDecode(signInResponse);
+   // if(finalData["status"]=="true"){
+   //   final snackBar = SnackBar(content: Text("Sign in successful"),duration: Duration(milliseconds: 500),);
+   //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+   //   Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+   // }else{
+   //   final snackBar = SnackBar(content: Text("Invalid credentials"),duration: Duration(milliseconds: 1000),);
+   //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+   // }
+      final snackBar = SnackBar(content: Text("Sign in successful"),duration: Duration(milliseconds: 500),);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
     }
 
     setState(() {

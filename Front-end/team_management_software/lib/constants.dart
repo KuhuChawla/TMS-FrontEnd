@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+
+
+
 class Constants{
   static  kTextFormFieldDecoration(String labelText){
     return InputDecoration(
@@ -13,4 +16,6 @@ class Constants{
             borderSide: BorderSide(color: Colors.green)));
   }
   static Color buttonColor=   const Color(0xFFeccf1d);
+  static String username="testEmail";
+  static String email="";
 }
