@@ -7,9 +7,10 @@ class Data with ChangeNotifier {
   HelperFunction helperFunction = HelperFunction();
   List listOfMessagesNotifier = [];
   List listOfTokensNotifier = [];
-  List listOfProjects=[];
+ List listOfProjects=[];
   String key = "";
   bool loadingScreen=false;
+  bool isLoadingContent=false;
   toggleLoading(){
     loadingScreen=!loadingScreen;
     notifyListeners();
@@ -19,9 +20,10 @@ class Data with ChangeNotifier {
     key = newKey;
   }
 
-  addProjectToList(String name){
-    listOfProjects.add(name);
+  addProjectToList(projectDetails){
+    listOfProjects.add(projectDetails);
     notifyListeners();
+    helperFunction.addProjectToDatabase();
   }
   removeProjectFromList(index){
     listOfProjects.removeAt(index);

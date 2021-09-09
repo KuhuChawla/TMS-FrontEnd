@@ -22,15 +22,15 @@ getAppBar(context,String name){
                   color: Colors.black,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 2,
               ),
-              CircleAvatar(
+              const CircleAvatar(
                 backgroundImage: NetworkImage(
                     "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper.png"),
                 maxRadius: 20,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 12,
               ),
               Expanded(
@@ -40,10 +40,10 @@ getAppBar(context,String name){
                   children: <Widget>[
                     Text(
                       name,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 21, fontWeight: FontWeight.w600),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 6,
                     ),
                     // Text("Online", style: TextStyle(
@@ -57,7 +57,7 @@ getAppBar(context,String name){
              var token=await    firebaseNotification.getToken();
              print(token);
              },
-                child: Icon(
+                child: const Icon(
                   Icons.settings,
                   color: Colors.black54,
                 ),

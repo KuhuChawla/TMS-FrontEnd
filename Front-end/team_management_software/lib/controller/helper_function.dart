@@ -92,15 +92,16 @@ class HelperFunction{
   }
 
   Future getAllProjectDetails()async{
-    http.Response response=await http.get(Uri.parse("uri"));
-    String data=response.body;
+    http.Response response=await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects"));
+    var data=response.body;
     var finalData=jsonDecode(data);
-    return finalData;
+   // print(finalData["message"]);
+    return finalData["message"];
   }
 
   Future addProjectToDatabase()async{
-    
-    var url=Uri.parse("");
+    print("adding a project was called");
+    var url=Uri.parse("https://ems-heroku.herokuapp.com/projects");
     var dataToSend={
      "name":"projectTrial",
       "description":"nothing much",
@@ -116,7 +117,6 @@ class HelperFunction{
 
         body: finalData
     );
-
   }
 
 }

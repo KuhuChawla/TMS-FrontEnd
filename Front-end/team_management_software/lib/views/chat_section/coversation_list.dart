@@ -18,7 +18,7 @@ class ConversationListPage extends StatefulWidget {
   _ConversationListPageState createState() => _ConversationListPageState();
 }
 
-var thisIsList = [];
+var thisIsList;
 
 class _ConversationListPageState extends State<ConversationListPage> {
   String? token;
@@ -82,15 +82,6 @@ class _ConversationListPageState extends State<ConversationListPage> {
                     ),
                     IconButton(
                       onPressed: () {
-                        // SharedPrefFunctions.setIsUserLoggedIn(false);
-                        // SharedPrefFunctions.saveEmail("");
-                       // Navigator.pushReplacement(context,
-                        //     MaterialPageRoute(builder: (context) {
-                        // //      return SignInPage();
-                        //     }));
-                        //print("this is username ${Constants.username}");
-
-                        // helperFunction.sendDeviceTokenToDatabase();
                         helperFunction.sendNotificationTrial("efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5g"
                             "JPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQgcH7FwLs32UUnPNf"
                             "Q3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb", "hi bro", "Rohit");
@@ -109,7 +100,10 @@ class _ConversationListPageState extends State<ConversationListPage> {
               ),
             ),
           ),
-          body: ListView.builder(
+          body: thisIsList.isEmpty?Center(child: CircularProgressIndicator(
+            color: Colors.yellow,
+            backgroundColor: Colors.black,
+          )): ListView.builder(
             shrinkWrap: true,
             itemCount: thisIsList.length,
             itemBuilder: (context, index) {

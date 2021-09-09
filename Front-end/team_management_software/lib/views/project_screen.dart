@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:team_management_software/controller/helper_function.dart';
+import 'package:team_management_software/views/components/new_project_floating_button.dart';
 import '../change_notifier.dart';
 import '../constants.dart';
 
@@ -11,183 +12,121 @@ class ProjectScreen extends StatefulWidget {
 }
 
 class _ProjectScreenState extends State<ProjectScreen> {
-  List projects = [];
+  bool isLoaded = false;
+  var projects;
   String input = "";
-  HelperFunction helperFunction=HelperFunction();
+  HelperFunction helperFunction = HelperFunction();
 
-  gettingTheList() async
-  {
-    projects = context.watch<Data>().listOfProjects;
+  gettingTheList() async {
+    projects =  context.watch<Data>().listOfProjects;
   }
-  removingFromList(index)
-  {
 
-
+  removingFromList(index) {}
+  updatingTheList() {
+    context.read<Data>().updateProjectListFromServer();
   }
 
   @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    gettingTheList();
+  void didChangeDependencies() async {
+    await gettingTheList();
+    isLoaded = true;
     super.didChangeDependencies();
   }
+
   @override
   void initState() {
     super.initState();
-
-    projects.add("Project1");
+    updatingTheList();
   }
 
-  onProjectItemMenuTap(){
-
-  }
-  void reorderData(int oldindex, int newindex){
-
+  onProjectItemMenuTap() {}
+  void reorderData(int oldindex, int newindex) {
     setState(() {
-      if(newindex>oldindex){
-        newindex-=1;
+      if (newindex > oldindex) {
+        newindex -= 1;
       }
-      final items =projects.removeAt(oldindex);
+      final items = projects.removeAt(oldindex);
       projects.insert(newindex, items);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: const Text("Project Section",style: TextStyle(color: Colors.yellow),),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          "Project Section",
+          style: TextStyle(color: Colors.yellow),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.black,
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                      title: const Text("ADD A NEW PROJECT",style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                          fontFamily: 'Montserrat'
-                      ),),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
+      ),
+      floatingActionButton: floatingButtonForNewProject(context),
+      body: projects.isEmpty ? Center(child: CircularProgressIndicator(
+        color: Colors.yellow,
+        backgroundColor: Colors.black,
+      )
+      ): ReorderableListView.builder(
+        onReorder: reorderData,
+        itemCount: projects.length ?? 0,
+        itemBuilder: (BuildContext context, int index) {
+          return Dismissible(
+              onDismissed: (direction) {
+                // setState(() {
+                //   projects.removeAt(index);
+                // });
+                context.read<Data>().removeProjectFromList(index);
+
+                //showing a snackBar after removing a project
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Dismissed project')));
+              },
+              key: Key(projects[index]["name"]),
+              child: Container(
+                height: 150,
+                alignment: Alignment.center,
+                child: Card(
+                    color: Colors.orange[50],
+                    shadowColor: Colors.grey,
+                    elevation: 2,
+                    //margin: EdgeInsets.all(5),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    child: ListTile(
+                      // contentPadding: EdgeInsets.only(left: 20,right:10,top:12,bottom: 10),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextFormField(
-                           // controller: nameController,
-                            onChanged: (val){
-                              input=val;
-                            },
-                            validator: (val) {
-                              val ??= " ";
-
-                             // val.length >= 4 ? null : errorInForm(0);
-                              return val.length >= 4
-                                  ? null
-                                  : " Enter a valid name";
-                            },
-                            decoration:
-                            Constants.kTextFormFieldDecoration("NAME"),
+                          Column(
+                            //  mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(projects[index]["name"],
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                projects[index]["description"],
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(color: Colors.grey),
+                              )
+                            ],
                           ),
-                          TextFormField(
-                            // controller: nameController,
-                            validator: (val) {
-                              val ??= " ";
-
-                              // val.length >= 4 ? null : errorInForm(0);
-                              return val.length >= 4
-                                  ? null
-                                  : " Enter a valid name";
-                            },
-                            decoration:
-                            Constants.kTextFormFieldDecoration("DESCRIPTION"),
-                          ),
-                          TextFormField(
-                            // controller: nameController,
-                            validator: (val) {
-                              val ??= " ";
-
-                              // val.length >= 4 ? null : errorInForm(0);
-                              return val.length >= 4
-                                  ? null
-                                  : " Enter a valid name";
-                            },
-                            decoration:
-                            Constants.kTextFormFieldDecoration("GITHUB LINK"),
-                          ),
-                          TextFormField(
-                            // controller: nameController,
-
-                            validator: (val) {
-                              val ??= " ";
-
-                              // val.length >= 4 ? null : errorInForm(0);
-                              return val.length >= 4
-                                  ? null
-                                  : " Enter a valid name";
-                            },
-                            decoration:
-                            Constants.kTextFormFieldDecoration("DOCUMENT LINK"),
+                          Container(
+                            child: IconButton(
+                              icon: Icon(Icons.menu),
+                              onPressed: () {},
+                            ),
                           ),
                         ],
                       ),
-                      actions: <Widget>[
-                        TextButton(
-                            onPressed: () async{
-                              if(input.isNotEmpty) {
-                                context.read<Data>().addProjectToList(input);
-                              }
-                          // await  helperFunction.addProjectToDatabase();
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text("ADD",style: TextStyle(
-                              fontSize: 18,fontWeight: FontWeight.bold,color: Colors.deepOrange
-                            ),))
-                      ]);
-                },
-              );
-            },
-            child: Icon(
-              Icons.add,
-              color: Colors.yellow[600],
-            )),
-        body: ReorderableListView.builder(
-             onReorder: reorderData,
-            itemCount: projects.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Dismissible(
-                  onDismissed: (direction) {
-                    // setState(() {
-                    //   projects.removeAt(index);
-                    // });
-                    context.read<Data>().removeProjectFromList(index);
-
-
-                      //showing a snackBar after removing a project
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text('Dismissed project')));
-                  },
-                  key: Key(projects[index]),
-                  child: Container(
-                    height: 100,
-                    child: Card(
-                      color: Colors.orange[50],
-                     shadowColor: Colors.grey,
-                        elevation: 2,
-                        margin: EdgeInsets.all(5),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.only(left: 20,right:10,top:12,bottom: 10),
-                          title: Text(projects[index],
-                              style: TextStyle(fontSize: 20)),
-                          trailing: IconButton(icon:Icon(Icons.menu),onPressed: (){
-
-                          },),
-                        )),
-                  ));
-            })
+                    )),
+              ));
+        },
+      ),
     );
   }
 }
