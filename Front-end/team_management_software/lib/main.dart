@@ -6,10 +6,10 @@ import 'package:team_management_software/views/splashscreen.dart';
 import 'change_notifier.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -17,22 +17,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(
-      builder: (context, orientation, deviceType) {
-        return
-          MultiProvider(
-            providers: [
-            ChangeNotifierProvider(create: (_)=>Data()),
-        ],
-
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            home: const HomeScreen()));
-      }
-    );
+    return Sizer(builder: (context, orientation, deviceType) {
+      return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => Data()),
+          ],
+          child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Flutter Demo',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              home: MyStatefulWidget()));
+    });
   }
 }
