@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:team_management_software/views/home_screen.dart';
+import 'package:team_management_software/views/screens/dashboard.dart';
 import 'package:team_management_software/views/splashscreen.dart';
 import 'change_notifier.dart';
 import 'package:firebase_core/firebase_core.dart';
