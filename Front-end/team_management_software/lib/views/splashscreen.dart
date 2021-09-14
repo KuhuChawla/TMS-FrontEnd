@@ -12,7 +12,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final splashDelay = 10;
+  final splashDelay = 6;
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 1.4,
                         child: ColorizeAnimatedTextKit(
-                          speed: Duration(milliseconds: 200),
+                          speed: Duration(milliseconds: 100),
                           text: [
                             "MANAGE TEAMS",
                             "CREATE TASKS",

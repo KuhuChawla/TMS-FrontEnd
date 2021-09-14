@@ -7,12 +7,55 @@ class Data with ChangeNotifier {
   HelperFunction helperFunction = HelperFunction();
   List listOfMessagesNotifier = [];
   List listOfTokensNotifier = [];
- List listOfProjects=[];
+  List listOfProjects = [
+    // {"name": "rohit","description":"good boy"},
+  ];
+  List taskListNotifier = [
+    {
+      "taskName": "taskName",
+      "isDone": false,
+      "taskDescription": "desc",
+      "priority": 1,
+      "status": "stuck",
+      "dueDate":"2021-09-08 00:00:00.000"
+    },
+    {
+      "taskName": "taskName2",
+      "isDone": false,
+      "taskDescription": "desc",
+      "priority": 1,
+      "status": "stuck",
+      "dueDate":"2021-09-08 00:00:00.000"
+    }
+  ];
+  updateTaskList(index) {
+    print("updating $index");
+    taskListNotifier[index]["isDone"] = !taskListNotifier[index]["isDone"];
+    notifyListeners();
+  }
+
+  addTask({
+    required taskName,
+    required taskDescription,
+    required dueDate
+  }) {
+    var newTask={
+      "taskName":taskName,
+      "taskDescription":taskDescription??"not added",
+      "isDone":false,
+      "dueDate":dueDate
+    };
+    print("adding task");
+
+    taskListNotifier.add(newTask);
+    notifyListeners();
+  }
+
   String key = "";
-  bool loadingScreen=false;
-  bool isLoadingContent=false;
-  toggleLoading(){
-    loadingScreen=!loadingScreen;
+  bool loadingScreen = false;
+  bool isLoadingContent = false;
+  toggleLoading() {
+    loadingScreen = !loadingScreen;
     notifyListeners();
   }
 
@@ -20,24 +63,26 @@ class Data with ChangeNotifier {
     key = newKey;
   }
 
-  addProjectToList(projectDetails){
+  addProjectToList(projectDetails) {
     listOfProjects.add(projectDetails);
     notifyListeners();
-    helperFunction.addProjectToDatabase();
+    helperFunction.addProjectToDatabase(projectDetails);
   }
-  removeProjectFromList(index){
+
+  removeProjectFromList(index) {
     listOfProjects.removeAt(index);
     notifyListeners();
   }
 
-  updateProjectListFromServer()async{
-  listOfProjects= await helperFunction.getAllProjectDetails();
-  notifyListeners();
+  updateProjectListFromServer() async {
+    listOfProjects = await helperFunction.getAllProjectDetails();
+    notifyListeners();
   }
+
   updateTokenListFromSharedPref() async {
-   // listOfTokensNotifier =
-   // await SecureStorageFunction.getTokensDataFromSharedPrefs();
-   // notifyListeners();
+    // listOfTokensNotifier =
+    // await SecureStorageFunction.getTokensDataFromSharedPrefs();
+    // notifyListeners();
   }
 
   updateMessageListFromSharedPref(String key) async {
@@ -47,13 +92,14 @@ class Data with ChangeNotifier {
   }
 
   addToUniqueList(text, key) {
-    print("func called");
+    //print("func called");
     listOfMessagesNotifier.add(text);
     notifyListeners();
     // SecureStorageFunction.saveDataToSharedPref(listOfMessagesNotifier, key);
   }
 
-  addToUniqueListFromServer(text,String type,String from,String fileName,timeStamp) async {
+  addToUniqueListFromServer(
+      text, String type, String from, String fileName, timeStamp) async {
     // listOfMessagesNotifier=[{"msg":"first text"}];
     var newMessage = {
       "msg": text,
@@ -62,7 +108,7 @@ class Data with ChangeNotifier {
       "fileName": fileName,
       "timeStamp": timeStamp.toString()
     };
-    print(newMessage);
+    //print(newMessage);
     if (key == from) {
       listOfMessagesNotifier.add(newMessage);
       notifyListeners();
@@ -75,18 +121,20 @@ class Data with ChangeNotifier {
       // }
     }
   }
-  removingMessage(int index,String key){
-    print("removing a message function");
+
+  removingMessage(int index, String key) {
+    //print("removing a message function");
     listOfMessagesNotifier.removeAt(index);
     notifyListeners();
-   // SecureStorageFunction.saveDataToSharedPref(listOfMessagesNotifier, key);
+    // SecureStorageFunction.saveDataToSharedPref(listOfMessagesNotifier, key);
     //send a notification to remove
   }
-  removingMessageFromServer(String timeStamp,String from) async {
-    print("removing message from server");
+
+  removingMessageFromServer(String timeStamp, String from) async {
+    //print("removing message from server");
     if (key == from) {
-      listOfMessagesNotifier.removeWhere((element) =>
-      element["timeStamp"] == timeStamp);
+      listOfMessagesNotifier
+          .removeWhere((element) => element["timeStamp"] == timeStamp);
       notifyListeners();
       //   await SecureStorageFunction.saveDataToSharedPref(
       //       listOfMessagesNotifier, from);

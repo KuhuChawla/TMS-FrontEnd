@@ -6,6 +6,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:sizer/sizer.dart';
 import 'package:team_management_software/controller/http_functions.dart';
 import 'package:team_management_software/views/home_screen.dart';
+import 'package:team_management_software/views/screens/bottom_navigation.dart';
 import 'package:team_management_software/views/sign_up.dart';
 import 'package:team_management_software/views/welcome_screen.dart';
 
@@ -43,7 +44,7 @@ class _SignInPageState extends State<SignInPage> {
    // }
       final snackBar = SnackBar(content: Text("Sign in successful"),duration: Duration(milliseconds: 500),);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomNavigation()));
     }
 
     setState(() {

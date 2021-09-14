@@ -10,6 +10,7 @@ import 'package:team_management_software/controller/helper_function.dart';
 
 import '../../change_notifier.dart';
 import 'chatting_screen.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 // import 'change_notifier.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -24,164 +25,157 @@ class _ConversationListPageState extends State<ConversationListPage> {
   String? token;
   //bool isLoading = true;
   HelperFunction helperFunction = HelperFunction();
-  gettingTheTokens() async {
+  getConversationList() async {
     thisIsList = context.watch<Data>().listOfTokensNotifier;
   }
   getDeviceToken()async{
  //   token = await FirebaseNotification().getToken();
   }
+  updateConversationList()async{
+    await context.read<Data>().getTokensDataFromHttp();
+  }
   @override
   void initState() {
     getDeviceToken();
+     updateConversationList();
     //context.read<Data>().updateTokenListFromSharedPref();
     super.initState();
   }
   @override
-  void didChangeDependencies() {
-    gettingTheTokens();
-   // Provider.of<Data>(context, listen: false).getTokensDataFromHttp();
-     context.read<Data>().getTokensDataFromHttp();
+  void didChangeDependencies() async{
+   await getConversationList();
+
+   //Provider.of<Data>(context, listen: false).getTokensDataFromHttp();
+
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Color(0xFFe1ecf7),
-            flexibleSpace: SafeArea(
-              child: Container(
-                padding: EdgeInsets.only(right: 20, top: 2),
-                child: Row(
-                  children: <Widget>[
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+      child: Scaffold(
+        appBar:AppBar(
+         // leadingWidth: 30,
+          automaticallyImplyLeading: false,
+
+          title: Text("Conversations",style: TextStyle(color: Colors.yellow[800],fontWeight: FontWeight.w300,fontSize: 25),),
+        backgroundColor: Colors.black,
+        actions: [
+          IconButton(onPressed: (){
+         // helperFunction.sendNotificationTrial(token, message, name)
+          helperFunction.sendDeviceTokenToDatabase();
+
+        }, icon: const Icon(Icons.logout))],
+
+        ),
+        body: thisIsList.isEmpty?Center(child: CircularProgressIndicator(
+          color: Colors.yellow[800],
+          backgroundColor: Colors.black,
+        )): ListView.builder(
+          shrinkWrap: true,
+          itemCount: thisIsList.length,
+          itemBuilder: (context, index) {
+            return
+              // thisIsList[0]["name"] == null ||thisIsList[index]["token"]==token
+              //     ? Container(
+              //   child: Text("empty"),
+              // )
+              //     :
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChattingScreen(
+                            thisIsList[index]["token"],
+                            thisIsList[index]["fullName"])),
+                  );
+                },
+                child: Slidable(
+                  actionPane: SlidableDrawerActionPane(),
+                  actionExtentRatio: 0.2,
+                  secondaryActions: <Widget>[
+                    IconSlideAction(
+                      caption: 'Archive',
+                      color: Colors.blue,
+                      icon: Icons.archive,
+                      onTap: () => null,
+                    ),
+                    IconSlideAction(
+                      caption: 'Delete',
+                      color: Colors.red[400],
+                      icon: Icons.delete,
+                      onTap: () {
+
                       },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.black,
-                        size: 30,
-                      ),
                     ),
-
-                    const SizedBox(
-                      width: 5,
-                    ),
-
-                    //SizedBox(width: 12,),
-                    const Expanded(
-                      child: Text(
-                        "Conversations",
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        helperFunction.sendNotificationTrial("efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5g"
-                            "JPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQgcH7FwLs32UUnPNf"
-                            "Q3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb", "hi bro", "Rohit");
-                        print("sent");
-                      },
-                      icon: const Icon(
-                        Icons.login_outlined,
-                        color: Colors.black,
-                        size: 30,
-                      ),
-                    ),
-
-                    //Icon(Icons.settings, color: Colors.black54,),
                   ],
-                ),
-              ),
-            ),
-          ),
-          body: thisIsList.isEmpty?Center(child: CircularProgressIndicator(
-            color: Colors.yellow,
-            backgroundColor: Colors.black,
-          )): ListView.builder(
-            shrinkWrap: true,
-            itemCount: thisIsList.length,
-            itemBuilder: (context, index) {
-              return
-                // thisIsList[0]["name"] == null ||thisIsList[index]["token"]==token
-                //     ? Container(
-                //   child: Text("empty"),
-                // )
-                //     :
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ChattingScreen(
-                              thisIsList[index]["token"],
-                              thisIsList[index]["name"])),
-                    );
-                  },
-                  child: Container(
-                      padding: EdgeInsets.all(15),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.black12,
-                            width: 1.0,
-                          ),
+
+
+                  child:  Container(
+                    padding: EdgeInsets.all(15),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.black12,
+                          width: 1.0,
                         ),
                       ),
-                      child: UserTile(thisIsList[index]["name"]!)
+                    ),
+                    child: UserTile(thisIsList[index]["fullName"]!)
 
-                  ),
-                );
-            },
-          ),
+                ),),
+              );
+          },
         ),
       ),
     );
   }
 }
 
+// ignore: non_constant_identifier_names
 UserTile(String name) {
-  return Container(
-    padding: const EdgeInsets.only(
-      right: 10,
-    ),
-    child: Row(
-      children: <Widget>[
-        const SizedBox(
-          width: 2,
-        ),
-        const CircleAvatar(
-          backgroundImage: NetworkImage(
-              "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper.png"),
-          maxRadius: 20,
-        ),
-        const SizedBox(
-          width: 12,
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                name,
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(
-                height: 6,
-              ),
-              // Text("Online", style: TextStyle(
-              //     color: Colors.grey.shade600, fontSize: 13),),
-            ],
+  return
+  Container(
+     // color: Colors.red,
+      padding: const EdgeInsets.only(
+        right: 10,
+      ),
+      child: Row(
+        children: <Widget>[
+          const SizedBox(
+            width: 2,
           ),
-        ),
-      ],
-    ),
+          const CircleAvatar(
+            backgroundImage: NetworkImage(
+                "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper.png"),
+            maxRadius: 20,
+          ),
+          const SizedBox(
+            width: 12,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  name,
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                // Text("Online", style: TextStyle(
+                //     color: Colors.grey.shade600, fontSize: 13),),
+              ],
+            ),
+          ),
+        ],
+      ),
+
   );
+
+
 }

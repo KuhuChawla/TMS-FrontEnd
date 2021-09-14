@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:team_management_software/controller/http_functions.dart';
 import 'package:team_management_software/views/components/role_dropdown.dart';
@@ -26,8 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController companyPhoneController = TextEditingController();
   TextEditingController companyEmailController = TextEditingController();
   TextEditingController activationCodeController = TextEditingController();
-
-  String dropDownValue="";
+  String dropDownValue = "";
 
   var error = [false, false, false];
   errorInForm(index) {
@@ -42,32 +40,39 @@ class _SignUpPageState extends State<SignUpPage> {
 
   final formKey = GlobalKey<FormState>();
 
-  validateAndSignUp() async{
+  validateAndSignUp() async {
     var form = formKey.currentState?.validate();
     if (form!) {
       HttpFunctions httpFunctions = HttpFunctions();
-      String signUpResponse=await  httpFunctions.registerUser(
-        name: nameController.text,
-        username: usernameController.text,
-        password: passwordController.text,
-        passwordConfirm: confirmPasswordController.text,
-        email: emailController.text,
-        phoneNumber: int.parse(phoneController.text),
-        address: addressController.text,
-        companyName: companyNameController.text,
-        companyDescription: companyDescriptionController.text,
-        companyEmail: companyEmailController.text,
-        companyNumber: int.parse(companyPhoneController.text),
-        activationToken: activationCodeController.text,
-        role: dropDownValue
-      );
-      var finalData=jsonDecode(signUpResponse);
-      if(finalData["status"]=="true"){
-        const snackBar =   SnackBar(content: Text("Sign Up successful"),duration: Duration(milliseconds: 500),);
+      String signUpResponse = await httpFunctions.registerNewAdmin(
+          name: nameController.text,
+          username: usernameController.text,
+          password: passwordController.text,
+          passwordConfirm: confirmPasswordController.text,
+          email: emailController.text,
+          phoneNumber: int.parse(phoneController.text),
+          address: addressController.text,
+          companyName: companyNameController.text,
+          companyDescription: companyDescriptionController.text,
+          companyEmail: companyEmailController.text,
+          companyNumber: int.parse(companyPhoneController.text),
+          activationToken: activationCodeController.text,
+          role: dropDownValue);
+      var finalData = jsonDecode(signUpResponse);
+
+      if (finalData["status"] == "true") {
+        const snackBar = SnackBar(
+          content: Text("Sign Up successful"),
+          duration: Duration(milliseconds: 500),
+        );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-      }else{
-        const snackBar = SnackBar(content: Text("Unable to sign up"),duration: Duration(milliseconds: 1000),);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else {
+        const snackBar = SnackBar(
+          content: Text("Unable to sign up"),
+          duration: Duration(milliseconds: 1000),
+        );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
@@ -352,33 +357,34 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     Step(
-                        title: Text(
-                          "Final Activation",
-                          style: TextStyle(
-                              color: error[2] ? Colors.red : Colors.black),
-                        ),
-                        content: Column(
-                          children: [
-                            DropDownDemo(
-                              onChangedRole: (String val) {
-                                print("this function is called with value $val");
-                                dropDownValue=val.toLowerCase();
-                              },
-                            ),
-                            TextFormField(
-                              controller: activationCodeController,
-                              validator: (val) {
-                                val ??= "";
-                                val.length >1? null : errorInForm(2);
-                                return val.length>1
-                                    ? null
-                                    : "Enter a valid Activation Code";
-                              },
-                              decoration: Constants.kTextFormFieldDecoration(
-                                  "ACTIVATION CODE"),
-                            ),
-                          ],
-                        ))
+                      title: Text(
+                        "Final Activation",
+                        style: TextStyle(
+                            color: error[2] ? Colors.red : Colors.black),
+                      ),
+                      content: Column(
+                        children: [
+                          DropDownDemo(
+                            onChangedRole: (String val) {
+                              print("this function is called with value $val");
+                              dropDownValue = val.toLowerCase();
+                            },
+                          ),
+                          TextFormField(
+                            controller: activationCodeController,
+                            validator: (val) {
+                              val ??= "";
+                              val.length > 1 ? null : errorInForm(2);
+                              return val.length > 1
+                                  ? null
+                                  : "Enter a valid Activation Code";
+                            },
+                            decoration: Constants.kTextFormFieldDecoration(
+                                "ACTIVATION CODE"),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 //  SizedBox(height: 5.h),

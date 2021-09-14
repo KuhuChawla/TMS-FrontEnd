@@ -134,7 +134,6 @@ class _ChattingScreenState extends State<ChattingScreen> {
       //     timeStamp.toString());
     }
   }
-
   @override
   void initState() {
     context.read<Data>().updateMessageListFromSharedPref(widget.name!);
@@ -165,7 +164,6 @@ class _ChattingScreenState extends State<ChattingScreen> {
   Widget build(BuildContext context) {
     bool enableTextField=true;
     String messageType = "text";
-
     return isLoading
         ? CircularProgressIndicator()
         : Scaffold(
@@ -524,10 +522,12 @@ class _ChattingScreenState extends State<ChattingScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                       },
-                      onLongPressStart: (val) {
+                      onLongPressStart: (val)async {
+                        await soundRecorder.openingSession();
                         setState(() {
                           showRecorder = true;
                         });
+
                         soundRecorder.toggleRecording();
                       },
                       onLongPressEnd: (val) {
