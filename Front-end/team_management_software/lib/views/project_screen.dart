@@ -1,7 +1,12 @@
+// ignore_for_file: implementation_imports
+
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:team_management_software/controller/helper_function.dart';
-import 'package:team_management_software/views/components/new_project_floating_button.dart';
+import 'package:team_management_software/views/components/new_project.dart';
+import 'package:team_management_software/views/screens/my_tasks.dart';
+import 'package:team_management_software/views/task_list_screen.dart';
+import 'package:team_management_software/views/test_screen.dart';
 import '../change_notifier.dart';
 import '../constants.dart';
 
@@ -20,6 +25,9 @@ class _ProjectScreenState extends State<ProjectScreen> {
   gettingTheList() async {
     projects =  context.watch<Data>().listOfProjects;
   }
+  getConversationList() async {
+   var  thisIsList = context.watch<Data>().listOfTokensNotifier;
+  }
 
   removingFromList(index) {}
   updatingTheList() {
@@ -28,6 +36,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
   @override
   void didChangeDependencies() async {
+    //await getConversationList()
     await gettingTheList();
     isLoaded = true;
     super.didChangeDependencies();
@@ -52,81 +61,141 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          "Project Section",
-          style: TextStyle(color: Colors.yellow),
-        ),
-      ),
-      floatingActionButton: floatingButtonForNewProject(context),
-      body: projects.isEmpty ? Center(child: CircularProgressIndicator(
-        color: Colors.yellow,
-        backgroundColor: Colors.black,
-      )
-      ): ReorderableListView.builder(
-        onReorder: reorderData,
-        itemCount: projects.length ?? 0,
-        itemBuilder: (BuildContext context, int index) {
-          return Dismissible(
-              onDismissed: (direction) {
-                // setState(() {
-                //   projects.removeAt(index);
-                // });
-                context.read<Data>().removeProjectFromList(index);
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+         // toolbarHeight: 35,
+          leadingWidth: 30,
+          automaticallyImplyLeading: false,
+          leading:
+          GestureDetector(
+            onTap:(){
+              Navigator.pop(context);
+            },
+            child: Container(
+              //color: Colors.red,
+                padding: EdgeInsets.only(left: 10),
+                child: Icon(Icons.arrow_back_ios,size: 25,color: Colors.yellow[800],)),
+          ),
+          title: Text("Projects",style: TextStyle(color: Colors.yellow[800],fontWeight: FontWeight.w300,fontSize: 25),),
+          backgroundColor: Colors.black,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(30),
+            child: Container(
+              alignment: Alignment.topLeft,
+              child: TabBar(
+                indicatorWeight: 3,
+                indicatorColor: Colors.yellow[800],
+                isScrollable: true,
+                tabs: [
+                  Container(
+                    //width: 50,
+                      child: Tab(text: 'All',height: 40,)),
+                  Tab(text: 'Favourites',height: 40),
+                  Tab(text: 'Recents',height: 40),
+                ],
+              ),
+            ),
+          ),
 
-                //showing a snackBar after removing a project
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Dismissed project')));
+        ),
+        floatingActionButton: CreateNewProject(),
+        //floatingButtonForNewProject(context),
+
+        body:
+
+        TabBarView(
+          children: [
+            projects.isEmpty ?  Center(child: CircularProgressIndicator(
+              color: Colors.yellow[800],
+              backgroundColor: Colors.black,
+            )
+            ):ListView.builder(
+              shrinkWrap: true,
+              //onReorder: reorderData,
+              itemCount: projects.length ?? 0,
+              itemBuilder: (BuildContext context, int index) {
+                return CardForProject(name:projects[index]["name"]!, description:projects[index]["description"]!);
               },
-              key: Key(projects[index]["name"]),
-              child: Container(
-                height: 150,
-                alignment: Alignment.center,
-                child: Card(
-                    color: Colors.orange[50],
-                    shadowColor: Colors.grey,
-                    elevation: 2,
-                    //margin: EdgeInsets.all(5),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    child: ListTile(
-                      // contentPadding: EdgeInsets.only(left: 20,right:10,top:12,bottom: 10),
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            //  mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(projects[index]["name"],
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                projects[index]["description"],
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(color: Colors.grey),
-                              )
-                            ],
-                          ),
-                          Container(
-                            child: IconButton(
-                              icon: Icon(Icons.menu),
-                              onPressed: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-              ));
-        },
+            ),
+            Container(),
+            Container()
+          ],
+        ),
       ),
     );
   }
 }
+
+class CardForProject extends StatelessWidget {
+  final name;
+  final description;
+  const CardForProject({Key? key, this.name, this.description}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 120,
+      alignment: Alignment.center,
+      child: Card(
+        //color: Colors.orange[50],
+          shadowColor: Colors.grey[500],
+
+          //elevation: 2,
+          //margin: EdgeInsets.all(5),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)),
+          child: ListTile(
+            // contentPadding: EdgeInsets.only(left: 20,right:10,top:12,bottom: 10),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: (){
+                     Navigator.push(context, MaterialPageRoute(builder: (coontext){
+                       return MyTasks();
+                         //TaskListScreen(name: name,);
+                     }));
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name,
+                              style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w400)),
+                          const SizedBox(
+                            height: 6,
+                          ),
+                          Text(description
+                            ,
+                            textAlign: TextAlign.left,
+                            style:  TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w300),
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  child: IconButton(
+                    icon: Icon(Icons.menu),
+                    onPressed: () {},
+                  ),
+                ),
+
+              ],
+            ),
+          )),
+    );
+  }
+}
+
+

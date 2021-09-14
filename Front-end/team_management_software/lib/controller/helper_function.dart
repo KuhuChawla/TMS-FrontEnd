@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 //import 'package:learning_notifications/constants.dart';
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:team_management_software/constants.dart';
 
 
@@ -35,43 +34,52 @@ class HelperFunction{
 
 
   sendNotification(String? token,String? message,String? name,String type,String fileName, timeStamp) async{
-    print("$token $message $name");
+    //print("$token $message $name");
     print("Sending notification function");
     if(type=="unsend"){
-      print("the type is unsend");
-      print(" $token, $message,$name, $type, $fileName, $timeStamp");
+      //print("the type is unsend");
+      //print(" $token, $message,$name, $type, $fileName, $timeStamp");
     }
     if(message!=""||type=="unsend"){
       http.Response response=await http.get(Uri.parse(
           "https://node-notification.herokuapp.com/sendToken?token="
               "$token&message=$message&name=${Constants.email}&type=$type&fileName=$fileName&timeStamp=${timeStamp.toString()}"));
-      print('notification sent');
+      //print('notification sent');
       print('your response is ${response.statusCode}');
     }
   }
 
   sendDeviceTokenToDatabase() async{
-    var url=Uri.parse("https://ems-heroku.herokuapp.com/tokens");
+    var url=Uri.parse("https://ems-heroku.herokuapp.com/users/register");
     var dataToSend={
-      "name":  "Rohit",
-      "token":"efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5gJPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQgcH7FwLs32UUnPNfQ3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb",
+      "fullName":  "Rohit",
+      "username":"rohitUser",
+      "email":"rohit@gmail.com",
+      "password":"rohit123",
+      "passwordConfirm":"rohit123",
+      "designation":"developer",
+      "token":"efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5gJPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQg"
+          "cH7FwLs32UUnPNfQ3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb",
     };
     var finalData=jsonEncode(dataToSend);
-    await http.post(url,
+    var response=await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-
         body: finalData
     );
+    print("the response form sending user details is ${response.statusCode}");
+    print(response.body);
 
   }
   Future getAllTokens()async{
-    http.Response response=await http.get(Uri.parse("https://ems-heroku.herokuapp.com/tokens"));
+    http.Response response=await http.get(Uri.parse("https://ems-heroku.herokuapp.com/users"));
     String data=response.body;
     var finalData=jsonDecode(data);
     //print("this is from handler$finalData");
-    return finalData;
+    print("the response code from get all tokens");
+    print(response.statusCode);
+    return finalData["users"];
   }
 
 
@@ -96,27 +104,31 @@ class HelperFunction{
     var data=response.body;
     var finalData=jsonDecode(data);
    // print(finalData["message"]);
+    print("the response from get all projects is ${response.statusCode}");
     return finalData["message"];
   }
 
-  Future addProjectToDatabase()async{
+
+
+  Future addProjectToDatabase(dataToSend)async{
     print("adding a project was called");
     var url=Uri.parse("https://ems-heroku.herokuapp.com/projects");
-    var dataToSend={
-     "name":"projectTrial",
-      "description":"nothing much",
-      "githubLink":"github ka link",
-      "documentLink":"document ka link",
-      "googleDriveLink":"drive ka link"
-    };
+    // var dataToSend={
+    //  "name":"projectTrial",
+    //   "description":"nothing much",
+    //   "githubLink":"github ka link",
+    //   "documentLink":"document ka link",
+    // };
     var finalData=jsonEncode(dataToSend);
-    await http.post(url,
+   var response= await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
 
         body: finalData
     );
+   print("response ${response.body}");
+
   }
 
 }

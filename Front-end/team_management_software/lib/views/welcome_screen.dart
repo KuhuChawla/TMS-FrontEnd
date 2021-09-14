@@ -57,26 +57,24 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 3.h),
-                  Container(
-                    child: MaterialButton(
-                      color: Colors.white,
-                      elevation: 2,
-                      minWidth: double.infinity,
-                      height: 7.h,
+                  MaterialButton(
+                    color: Colors.white,
+                    elevation: 2,
+                    minWidth: double.infinity,
+                    height: 7.h,
 
-                      shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.circular(14.sp)),
-                      onPressed: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignUpPage() ));
-                        // httpFunctions.registerUser(
-                        // );
-                      },
-                      child: Text(
-                        "SIGN UP",
-                        style:
-                            TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
-                      ),
+                    shape: RoundedRectangleBorder(
+                        side: const BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.circular(14.sp)),
+                    onPressed: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignUpPage() ));
+                      // httpFunctions.registerUser(
+                      // );
+                    },
+                    child: Text(
+                      "SIGN UP",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
                     ),
                   )
                 ],

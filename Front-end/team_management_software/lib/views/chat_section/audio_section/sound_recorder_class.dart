@@ -29,6 +29,10 @@ class SoundRecorder{
     if(status!=PermissionStatus.granted){
       throw RecordingPermissionException("Microphone permission not given");
     }
+    // await _audioRecorder!.openAudioSession();
+    // _isRecorderInitialised=true;
+  }
+  openingSession()async{
     await _audioRecorder!.openAudioSession();
     _isRecorderInitialised=true;
   }
