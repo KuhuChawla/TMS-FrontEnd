@@ -34,6 +34,7 @@ dependencies:
   flutter_sound_lite: ^8.1.9
   permission_handler: ^8.1.4+2
   loading_indicator: ^3.0.1
+  animated_theme_switcher: ^2.0.1-nullsafety.0
 
 
 dev_dependencies:
