@@ -3,10 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:team_management_software/constants.dart';
 
-
-class HelperFunction{
-
- // final FirebaseAuth _auth=FirebaseAuth.instance;
+class HelperFunction {
+  // final FirebaseAuth _auth=FirebaseAuth.instance;
   // User1 _userFromFirebaseUser(User? user){                    //didn't get this, need to work on it
   //   return user!=null ? User1(userId: user.uid):null;
   // }
@@ -32,105 +30,159 @@ class HelperFunction{
   //   }
   // }
 
-
-  sendNotification(String? token,String? message,String? name,String type,String fileName, timeStamp) async{
+  sendNotification(String? token, String? message, String? name, String type,
+      String fileName, timeStamp) async {
     //print("$token $message $name");
     print("Sending notification function");
-    if(type=="unsend"){
+    if (type == "unsend") {
       //print("the type is unsend");
       //print(" $token, $message,$name, $type, $fileName, $timeStamp");
     }
-    if(message!=""||type=="unsend"){
-      http.Response response=await http.get(Uri.parse(
+    if (message != "" || type == "unsend") {
+      http.Response response = await http.get(Uri.parse(
           "https://node-notification.herokuapp.com/sendToken?token="
-              "$token&message=$message&name=${Constants.email}&type=$type&fileName=$fileName&timeStamp=${timeStamp.toString()}"));
+          "$token&message=$message&name=${Constants.email}&type=$type&fileName=$fileName&timeStamp=${timeStamp.toString()}"));
       //print('notification sent');
       print('your response is ${response.statusCode}');
     }
   }
 
-  sendDeviceTokenToDatabase() async{
-    var url=Uri.parse("https://ems-heroku.herokuapp.com/users/register");
-    var dataToSend={
-      "fullName":  "Rohit",
-      "username":"rohitUser",
-      "email":"rohit@gmail.com",
-      "password":"rohit123",
-      "passwordConfirm":"rohit123",
-      "designation":"developer",
-      "token":"efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5gJPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQg"
-          "cH7FwLs32UUnPNfQ3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb",
+  sendDeviceTokenToDatabase() async {
+    var url = Uri.parse("https://ems-heroku.herokuapp.com/users/register");
+    var dataToSend = {
+      "fullName": "Rohit",
+      "username": "rohitUser",
+      "email": "rohit@gmail.com",
+      "password": "rohit123",
+      "passwordConfirm": "rohit123",
+      "designation": "developer",
+      "token":
+          "efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5gJPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACGDnQg"
+              "cH7FwLs32UUnPNfQ3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb",
     };
-    var finalData=jsonEncode(dataToSend);
-    var response=await http.post(url,
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: finalData
-    );
+        body: finalData);
     print("the response form sending user details is ${response.statusCode}");
     print(response.body);
-
   }
-  Future getAllTokens()async{
-    http.Response response=await http.get(Uri.parse("https://ems-heroku.herokuapp.com/users"));
-    String data=response.body;
-    var finalData=jsonDecode(data);
+
+  Future getAllTokens() async {
+    http.Response response =
+        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/users"));
+    String data = response.body;
+    var finalData = jsonDecode(data);
     //print("this is from handler$finalData");
     print("the response code from get all tokens");
     print(response.statusCode);
     return finalData["users"];
   }
 
+  sendNotificationTrial(String? sender, String? receiver, String? message) async {
+    //senderUsername , receiverUsername , message
 
-  sendNotificationTrial(String? token,String? message,String? name) async{
-    print("$token $message $name");
     print("Sending notification function");
-    // if(type=="unsend"){
-    //   print("the type is unsend");
-    //   print(" $token, $message,$name);
+    var data={
+      "sender":"rohit8",
+      "receiver":receiver,
+      "message":message,
+    };
+    var finalData=jsonEncode(data);
+    var url=Uri.parse("https://ems-heroku.herokuapp.com/message/sendMessage");
+
+    var response=await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: finalData,
+   );
+    print("the final data is $data");
+    print('your response is ${response.body}');
     // }
-    // if(message!=""||type=="unsend"){
-      http.Response response=await http.get(Uri.parse(
-          "https://ems-heroku.herokuapp.com/tokens/sendNotification?token="
-              "$token&message=$message&name=$name"));
-      print('notification sent');
-      print('your response is ${response.statusCode}');
-   // }
+  }
+  getAllMessagesByUserName(String userName) async{
+
+    var data={
+      "sender":"rohit8",
+      "receiver":userName,
+    };
+    var finalData=jsonEncode(data);
+    var url=Uri.parse("https://ems-heroku.herokuapp.com/message/getAllMessages");
+    var response=await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: finalData,
+    );
+    var returnedData=  jsonDecode(response.body);
+    print("the returned data") ;
+    print(returnedData["chats"]) ;
+    return returnedData["chats"];
+
+  //  print('your response from get user by username ${response.body}');
   }
 
-  Future getAllProjectDetails()async{
-    http.Response response=await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects"));
-    var data=response.body;
-    var finalData=jsonDecode(data);
-   // print(finalData["message"]);
+  Future getAllProjectDetails() async {
+    http.Response response =
+        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects"));
+    var data = response.body;
+    var finalData = jsonDecode(data);
+    // print(finalData["message"]);
     print("the response from get all projects is ${response.statusCode}");
     return finalData["message"];
   }
 
-
-
-  Future addProjectToDatabase(dataToSend)async{
+  Future addProjectToDatabase(dataToSend) async {
     print("adding a project was called");
-    var url=Uri.parse("https://ems-heroku.herokuapp.com/projects");
-    // var dataToSend={
-    //  "name":"projectTrial",
-    //   "description":"nothing much",
-    //   "githubLink":"github ka link",
-    //   "documentLink":"document ka link",
-    // };
-    var finalData=jsonEncode(dataToSend);
-   var response= await http.post(url,
+    var url = Uri.parse("https://ems-heroku.herokuapp.com/projects");
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-
-        body: finalData
-    );
-   print("response ${response.body}");
-
+        body: finalData);
+    print("response ${response.body}");
   }
 
+  Future addTaskToProject(projectId, dataToSend) async {
+    print("adding a project was called");
+    var url =
+        Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId/tasks");
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: finalData);
+    print("response ${response.body} from the adding project..........");
+  }
+
+  updateTask(projectId,taskId,dataToSend)async{
+    print("updating  a task............");
+    var url =
+    Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId/tasks/$taskId");
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.patch(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: finalData);
+    print("response ${response.body} from the adding project..........");
+  }
+
+  Future getAllTasksWithProjectId(projectId) async {
+    http.Response response = await http.get(Uri.parse(
+        "https://ems-heroku.herokuapp.com/projects/$projectId/tasks"));
+    String data = response.body;
+    var finalData = jsonDecode(data);
+    //print("this is from handler$finalData");
+    print("the response code from get all tasks of a project");
+    print(response.statusCode);
+    return finalData["allTasks"];
+  }
 }
 //"https://node-notification.herokuapp.com/sendToken?token=$token&message=$message&name=$name"
 //http://192.168.29.199:4000?token=$token&message=$message&jsonDataTrial=$finalJsonData

@@ -23,7 +23,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   HelperFunction helperFunction = HelperFunction();
 
   gettingTheList() async {
-    projects =  context.watch<Data>().listOfProjects;
+    projects =  context.watch<Data>().listOfProjectsNotifier;
   }
   getConversationList() async {
    var  thisIsList = context.watch<Data>().listOfTokensNotifier;
@@ -101,7 +101,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
           ),
 
         ),
-        floatingActionButton: CreateNewProject(),
+        floatingActionButton: const CreateNewProject(),
         //floatingButtonForNewProject(context),
 
         body:
@@ -117,7 +117,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
               //onReorder: reorderData,
               itemCount: projects.length ?? 0,
               itemBuilder: (BuildContext context, int index) {
-                return CardForProject(name:projects[index]["name"]!, description:projects[index]["description"]!);
+                return CardForProject(name:projects[index]["name"]??"name",
+                  description:projects[index]["description"]??"description",
+                  projectId: projects[index]["_id"],
+
+                );
               },
             ),
             Container(),
@@ -132,7 +136,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
 class CardForProject extends StatelessWidget {
   final name;
   final description;
-  const CardForProject({Key? key, this.name, this.description}) : super(key: key);
+  final projectId;
+  const CardForProject({Key? key, this.name, this.description, this.projectId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -155,8 +160,8 @@ class CardForProject extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: (){
-                     Navigator.push(context, MaterialPageRoute(builder: (coontext){
-                       return MyTasks();
+                     Navigator.push(context, MaterialPageRoute(builder: (context){
+                       return TaskListScreen(projectId: projectId,projectName: name,);
                          //TaskListScreen(name: name,);
                      }));
                     },
@@ -186,7 +191,7 @@ class CardForProject extends StatelessWidget {
                 ),
                 Container(
                   child: IconButton(
-                    icon: Icon(Icons.menu),
+                    icon: const Icon(Icons.menu),
                     onPressed: () {},
                   ),
                 ),

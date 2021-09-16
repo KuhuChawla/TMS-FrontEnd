@@ -17,7 +17,7 @@ class BottomNavigation extends StatefulWidget {
 /// This is the private State class that goes with MyStatefulWidget.
 class _BottomNavigationState extends State<BottomNavigation> {
   int _selectedIndex = 0;
-  final screen = [ProjectScreen(), MyTasks(),  ConversationListPage(), Search(), Account()];
+  final screen = [ProjectScreen(), MyTasks(projectId: "613462dcd02e903c1cbdf701",),  ConversationListPage(), SearchList(), Account()];
 
   void _onItemTapped(int index) {
     setState(() {

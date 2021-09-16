@@ -36,7 +36,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
   }
   @override
   void initState() {
-    getDeviceToken();
+     getDeviceToken();
      updateConversationList();
     //context.read<Data>().updateTokenListFromSharedPref();
     super.initState();

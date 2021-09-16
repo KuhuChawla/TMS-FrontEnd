@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -31,6 +33,14 @@ import 'package:focused_menu/focused_menu.dart';
 // import 'package:learning_notifications/audio_player/sound_recorder.dart';
 // import 'package:learning_notifications/function_handler.dart';
 // import 'package:learning_notifications/testing_page.dart';
+// import 'dart:convert';
+//  import 'dart:ffi';
+//  import 'dart:io';
+//  import 'dart:async';
+import 'package:async/async.dart';
+ import 'package:http/http.dart' as http;
+
+ import 'package:path/path.dart' as path;
 
 // ignore: must_be_immutable
 class ChattingScreen extends StatefulWidget {
@@ -73,70 +83,138 @@ class _ChattingScreenState extends State<ChattingScreen> {
       var anyFile = File(file.path!);
       final filename = path.basename(file.path!);
 
-      await uploadFileToFirebase(anyFile, filename, extension);
+      //await uploadFileToFirebase(anyFile, filename, extension);
+      String type;
+      if(extension=="jpg"){
+        type="image";
+      }else if(extension=="mp4"){
+        type="video";
+      }else if(extension=="mp3"){
+        type="audio";
+      }
+      else{
+        type=extension;
+      }
+      await uploadFileToServer(anyFile,filename,type);
     }
   }
 
   addingMessageToList(
-      String text, String type, String fileName, timeStamp) async {
+      String text, String type, String fileName) async {
     if (text != "") {
       context.read<Data>().addToUniqueList({
-        "msg": text,
-        "by": "me",
+        "message": text,
+        "sendBy": "me",
         "type": type,
         "fileName": fileName,
-        "timeStamp": timeStamp.toString()
       }, widget.name!);
     }
   }
 
-  String? abc;
-  uploadFileToFirebase(File file, String fileName, String type) async {
-    if (file != null) {
-      FirebaseStorage storage = FirebaseStorage.instance;
-      String newString = fileName.replaceAll(" ", "");
-      Reference ref = storage.ref().child(newString);
-      UploadTask uploadTask = ref.putFile(file);
-      await uploadTask.then((res) async {
-        abc = await res.ref.getDownloadURL();
-        print(abc);
-      });
-      var timeStamp = DateTime.now().millisecondsSinceEpoch;
+  uploadFileToServer(File imageFile,filename,type)async{
 
-      if (type == "jpg") addingMessageToList(abc!, "jpg", fileName, timeStamp);
-      if (type == "pdf") {
-        addingMessageToList(abc!, "pdf", fileName, timeStamp);
-      }
-      if (type == "mp4") {
-        addingMessageToList(abc!, "video", fileName, timeStamp);
-      }
-      if (type == "audio" || type == "mp3") {
-        print("type audio is getting added");
-        addingMessageToList(abc!, "audio", fileName, timeStamp);
-      }
+      // open a bytestream
+      var stream =
+       http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+      // get file length
+      var length = await imageFile.length();
+
+      // string to uri
+      var uri = Uri.parse("https://ems-heroku.herokuapp.com/message/uploadingFiles");
+
+      // create multipart request
+      var request =  http.MultipartRequest("POST", uri,);
+
+      // multipart that takes file
+      var multipartFile =  http.MultipartFile('files', stream, length,
+          filename: path.basename(imageFile.path));
+
+      // add file to multipart
+      request.files.add(multipartFile);
+      request.fields["sender"]="rohit8";
+      request.fields["receiver"]=widget.name!;
+      request.fields["fileName"]=filename;
+      request.fields["type"]=type;
+
+      // send
+      var response = await request.send();
+      print(response.statusCode);
+      print(response);
+
+      // listen for response
+      response.stream.transform(utf8.decoder).listen((value) {
+        var returnedValue=jsonDecode(value);
+        print(value+"....................................................");
+        var current=returnedValue["newChat"]["message"];
+        addingMessageToList(current, type,
+            filename);
+
+      });
 
       setState(() {
         showSpinner = false;
       });
-
-      // helperFunction.sendNotification(
-      //     widget.token,
-      //     abc!,
-      //     widget.name,
-      //     type == "jpg"
-      //         ? "image"
-      //         : type == "mp4"
-      //         ? "video"
-      //         : type == "mp3"
-      //         ? "audio"
-      //         : type,
-      //     fileName,
-      //     timeStamp.toString());
     }
+
+
+
+
+
+
+//  String? abc;
+  // uploadFileToFirebase(File file, String fileName, String type) async {
+  //   if (file != null) {
+  //     FirebaseStorage storage = FirebaseStorage.instance;
+  //     String newString = fileName.replaceAll(" ", "");
+  //     Reference ref = storage.ref().child(newString);
+  //     UploadTask uploadTask = ref.putFile(file);
+  //     await uploadTask.then((res) async {
+  //       abc = await res.ref.getDownloadURL();
+  //       print(abc);
+  //     });
+  //     var timeStamp = DateTime.now().millisecondsSinceEpoch;
+  //
+  //     if (type == "jpg") addingMessageToList(abc!, "jpg", fileName, timeStamp);
+  //     if (type == "pdf") {
+  //       addingMessageToList(abc!, "pdf", fileName, timeStamp);
+  //     }
+  //     if (type == "mp4") {
+  //       addingMessageToList(abc!, "video", fileName, timeStamp);
+  //     }
+  //     if (type == "audio" || type == "mp3") {
+  //       print("type audio is getting added");
+  //       addingMessageToList(abc!, "audio", fileName, timeStamp);
+  //     }
+  //
+  //     setState(() {
+  //       showSpinner = false;
+  //     });
+  //
+  //     // helperFunction.sendNotification(
+  //     //     widget.token,
+  //     //     abc!,
+  //     //     widget.name,
+  //     //     type == "jpg"
+  //     //         ? "image"
+  //     //         : type == "mp4"
+  //     //         ? "video"
+  //     //         : type == "mp3"
+  //     //         ? "audio"
+  //     //         : type,
+  //     //     fileName,
+  //     //     timeStamp.toString());
+  //   }
+  // }
+  updateMessageList()async{
+  await  context.read<Data>().updateMessageListFromServer(widget.name!);
+  setState(() {
+    isLoading = false;
+  });
   }
   @override
   void initState() {
-    context.read<Data>().updateMessageListFromSharedPref(widget.name!);
+    updateMessageList();
+
     context.read<Data>().updateKey(widget.name!);
      soundRecorder.init();
     super.initState();
@@ -148,25 +226,18 @@ class _ChattingScreenState extends State<ChattingScreen> {
     //soundRecorder.dispose();
   }
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async{
     listOfMessages = context.watch<Data>().listOfMessagesNotifier;
-    setState(() {
-      isLoading = false;
-    });
     super.didChangeDependencies();
   }
-
   TextEditingController messageController = TextEditingController();
   bool showSpinner = false;
-
 
   @override
   Widget build(BuildContext context) {
     bool enableTextField=true;
     String messageType = "text";
-    return isLoading
-        ? CircularProgressIndicator()
-        : Scaffold(
+    return  Scaffold(
       appBar: getAppBar(context, widget.name!),
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
@@ -179,7 +250,14 @@ class _ChattingScreenState extends State<ChattingScreen> {
                   children: [
                     Expanded(
                       child: Container(
-                        child: ListView.builder(
+                        child:isLoading
+                            ? Center(
+                          //width: 1000,
+                            //height: 40,
+                            child:Text("loading messages...")
+                           // CircularProgressIndicator()
+                        )
+                            : ListView.builder(
                           controller: scrollController,
                           shrinkWrap: true,
                           reverse: true,
@@ -188,44 +266,50 @@ class _ChattingScreenState extends State<ChattingScreen> {
                             var length = listOfMessages.length;
                             var currentIndex =
                             listOfMessages[length - index - 1];
-                            bool sendByMe = currentIndex["by"] == "me";
-                            return Container(
+                            bool sendByMe = currentIndex["sendBy"] == "rohit8";
+                            return
+                               Container(
+                                 //child:
+                                // Text(currentIndex["message"]),
                               padding: EdgeInsets.only(
                                 top: 10,
-                                left: currentIndex["by"] == "me"
+                                left: sendByMe
                                     ? MediaQuery.of(context).size.width /
                                     3
                                     : 10,
-                                right: currentIndex["by"] == "me"
+                                right: sendByMe
                                     ? 10
                                     : MediaQuery.of(context).size.width /
                                     3,
                               ),
-                              alignment: currentIndex["by"] == "me"
+                              alignment: sendByMe
                                   ? Alignment.topRight
                                   : Alignment.topLeft,
-                              child: currentIndex["type"] == "text"
-                                  ? Container(
+                               child:
+                                 currentIndex["type"] == "text"
+                                  ?
+                            Container(
                                 // color: isSelected?Colors.red:Colors.blue,
-                                child: sendByMe
-                                    ? FocusMenuHolderClass(
+                                child:
+                           sendByMe?
+                            FocusMenuHolderClass(
                                   MessageTile(
                                       text:
-                                      currentIndex["msg"],
+                                      currentIndex["message"],
                                       side: sendByMe
                                           ? "left"
                                           : "right"),
                                   length - index - 1,
                                   widget.name!,
-                                  currentIndex["timeStamp"],
+                                  currentIndex["timeStamp"]??" ",
                                   widget.token,
                                 )
                                     : MessageTile(
-                                    text: currentIndex["msg"],
+                                    text: currentIndex["message"],
                                     side: sendByMe
                                         ? "left"
                                         : "right"),
-                              )
+                             )
                                   : currentIndex["type"] == "jpg" ||
                                   currentIndex["type"] == "image"
                                   ?
@@ -240,12 +324,12 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                       BorderRadius
                                           .circular(10),
                                       child: Image.network(
-                                        "${currentIndex["msg"]}",
+                                        "${currentIndex["message"]}",
                                       )),
                                 ),
                                 length - index - 1,
                                 widget.name!,
-                                currentIndex["timeStamp"],
+                                currentIndex["timeStamp"]??" ",
                                 widget.token,
                                 // helperFunction.sendNotification(widget.token!, "", widget.name!, "unsend", "",
                                 // currentIndex["timeStamp"])
@@ -257,18 +341,19 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                     BorderRadius
                                         .circular(10),
                                     child: Image.network(
-                                      "${currentIndex["msg"]}",
+                                      "${currentIndex["message"]}",
                                     )),
                               )
                                   : currentIndex["type"] == "pdf"
-                                  ?sendByMe?
+                                  ?
+                                 sendByMe?
                               FocusMenuHolderClass(Container(
                                 width: 300,
                                 height: 100,
                                 child: GestureDetector(
                                   onTap: () async {
                                     String url =
-                                    currentIndex["msg"]!;
+                                    currentIndex["message"]!;
                                    final file =
                                     await PDFApi
                                         .loadNetwork(
@@ -281,25 +366,23 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                                 file: file,
                                                 fileName:
                                                 currentIndex[
-                                                "fileName"],
+                                                "fileName"]??" ",
                                               );
                                             }));
                                   },
                                   child: PdfTile(
                                       name: currentIndex[
-                                      "fileName"],
-                                      side: currentIndex[
-                                      "by"] ==
-                                          "me"
+                                      "fileName"]??"fileName",
+                                      side: sendByMe
                                           ? "left"
                                           : "right",
                                       url: currentIndex[
-                                      "msg"]),
+                                      "message"]),
                                 ),
                               ),
                                 length - index - 1,
                                 widget.name!,
-                                currentIndex["timeStamp"],
+                                currentIndex["timeStamp"]??" ",
                                 widget.token,)
                                   : Container(
                                 width: 300,
@@ -307,7 +390,7 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                 child: GestureDetector(
                                   onTap: () async {
                                     String url =
-                                    currentIndex["msg"]!;
+                                    currentIndex["message"]!;
                                     final file =
                                     await PDFApi
                                         .loadNetwork(
@@ -320,20 +403,18 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                                 file: file,
                                                 fileName:
                                                 currentIndex[
-                                                "fileName"],
+                                                "fileName"]??"fileName ",
                                               );
                                             }));
                                   },
                                   child: PdfTile(
                                       name: currentIndex[
-                                      "fileName"],
-                                      side: currentIndex[
-                                      "by"] ==
-                                          "me"
+                                      "fileName"]??"fileName ",
+                                      side:sendByMe
                                           ? "left"
                                           : "right",
                                       url: currentIndex[
-                                      "msg"]),
+                                      "message"]),
                                 ),
                               )
                                   : currentIndex["type"] ==
@@ -350,11 +431,11 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                               VideoPlayerController
                                                   .network(
                                                   currentIndex[
-                                                  "msg"]!),
+                                                  "message"]!),
                                               fileName:
                                               currentIndex[
-                                              "fileName"],
-                                              looping: true,
+                                              "fileName"]??" ",
+                                              looping: false,
                                             );
                                           }));
                                 },
@@ -362,17 +443,15 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                   width: 300,
                                   height: 100,
                                   child: VideoTile(
-                                      side: currentIndex[
-                                      "by"] ==
-                                          "me"
+                                      side: sendByMe
                                           ? "left"
                                           : "right",
                                       name: currentIndex[
-                                      "fileName"]),
+                                      "fileName"]??" "),
                                 ),
                               ),  length - index - 1,
                                 widget.name!,
-                                currentIndex["timeStamp"],
+                                currentIndex["timeStamp"]??" ",
                                 widget.token,) : GestureDetector(
                                 onTap: () {
                                   Navigator.push(
@@ -385,10 +464,10 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                               VideoPlayerController
                                                   .network(
                                                   currentIndex[
-                                                  "msg"]!),
+                                                  "message"]!),
                                               fileName:
                                               currentIndex[
-                                              "fileName"],
+                                              "fileName"]??" ",
                                               looping: true,
                                             );
                                           }));
@@ -397,13 +476,11 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                   width: 300,
                                   height: 100,
                                   child: VideoTile(
-                                      side: currentIndex[
-                                      "by"] ==
-                                          "me"
+                                      side: sendByMe
                                           ? "left"
                                           : "right",
                                       name: currentIndex[
-                                      "fileName"]),
+                                      "fileName"]??" "),
                                 ),
                               )
                                   : currentIndex["type"] ==
@@ -418,7 +495,7 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                           (context) {
                                         return AudioPlayerDialog(
                                           url: currentIndex[
-                                          "msg"],
+                                          "message"],
                                         );
                                       });
                                 },
@@ -426,15 +503,14 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                     width: 300,
                                     height: 100,
                                     child: AudioTile(
-                                        side: currentIndex["by"] ==
-                                            "me"
+                                        side: sendByMe
                                             ? "left"
                                             : "right",
                                         name: currentIndex[
-                                        "fileName"])),
+                                        "fileName"]??" ")),
                               ), length - index - 1,
                                 widget.name!,
-                                currentIndex["timeStamp"],
+                                currentIndex["timeStamp"]??" ",
                                 widget.token,) : GestureDetector(
                                 onTap: () {
                                   FocusScope.of(context).requestFocus(FocusNode());
@@ -449,7 +525,7 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                         // var isPlaying=soundPlayer.isPlaying;
                                         return AudioPlayerDialog(
                                           url: currentIndex[
-                                          "msg"],
+                                          "message"],
                                         );
                                       });
 
@@ -458,12 +534,11 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                     width: 300,
                                     height: 100,
                                     child: AudioTile(
-                                        side: currentIndex["by"] ==
-                                            "me"
+                                        side: sendByMe
                                             ? "left"
                                             : "right",
                                         name: currentIndex[
-                                        "fileName"])),
+                                        "fileName"]??" ")),
                               )
                                   : Container(),
                             );
@@ -600,23 +675,18 @@ class _ChattingScreenState extends State<ChattingScreen> {
                           var timeStamp =
                               DateTime.now().millisecondsSinceEpoch;
                           addingMessageToList(
-                              text, messageType, " ", timeStamp);
+                              text, messageType, " ");
                           messageController.text = "";
 
                           setState(() {});
                           scrollController.animateTo(0.0,
                               duration: Duration(milliseconds: 200),
                               curve: Curves.easeIn);
-                          // helperFunction.sendNotification(
-                          //     "efOjZLfxSKCs7NneDEDZNN:APA91bG0ctBRv5gJPvfQ5jqpQAcbtCbRFN3v-uTUq9oMzGMsZACG
-                          //     DnQgcH7FwLs32UUnPNfQ3wUhR5aHxRyZvkAWMeHm_UuaUByaF3n_PL6RQbe6RLd-ucuvYJ2luO3e9g9QUo-Sqreb",
-                          //     text,
-                          //     widget.name,
-                          //     messageType,
-                          //     "",
-                          //     timeStamp);
-                          helperFunction.sendNotificationTrial(widget.token, text, widget.name);
-                          print("sent");
+
+                          if(text!="") {
+                            helperFunction.sendNotificationTrial("rohit8", widget.name,text);
+                          }
+                         // print("sent");
                            //saveDataToSharedPrefs();
                         },
                         child: const Text(

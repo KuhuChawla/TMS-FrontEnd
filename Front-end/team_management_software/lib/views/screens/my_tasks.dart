@@ -7,7 +7,8 @@ import 'package:team_management_software/views/components/task_tile.dart';
 import '../../change_notifier.dart';
 
 class MyTasks extends StatefulWidget {
-  const MyTasks({Key? key}) : super(key: key);
+  String projectId;
+   MyTasks({Key? key,required this.projectId}) : super(key: key);
 
   @override
   _MyTasksState createState() => _MyTasksState();
@@ -16,27 +17,34 @@ class MyTasks extends StatefulWidget {
 
 class _MyTasksState extends State<MyTasks> {
   var taskList;
+  bool isLoading=true;
 
   getTaskList(String projectName){
   taskList=  context.watch<Data>().taskListNotifier;
+  }
+  updateTaskList()async{
+   await context.read<Data>().getTasksListFromServerForProject(widget.projectId);
+   isLoading=false;
   }
 @override
   void initState() {
    // getDeviceToken();
     //updateConversationList();
+  print(widget.projectId+".............................................");
+  updateTaskList();
+
     super.initState();
   }
   @override
   void didChangeDependencies() async{
     await getTaskList("okay");
-
     super.didChangeDependencies();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.black,
           onPressed: () {
@@ -45,7 +53,7 @@ class _MyTasksState extends State<MyTasks> {
               context: context,
               builder: (BuildContext context) {
                 return
-                  CreateTask();
+                  CreateTask(projectId: widget.projectId,);
               },
             );
           },
@@ -66,7 +74,7 @@ class _MyTasksState extends State<MyTasks> {
         ),
         backgroundColor: Colors.black,
       ),
-      body:
+      body: isLoading?CircularProgressIndicator():
       ListView.builder(
         shrinkWrap: true,
         itemCount:
@@ -78,17 +86,10 @@ class _MyTasksState extends State<MyTasks> {
           return
             GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => ChattingScreen(
-                //           thisIsList[index]["token"],
-                //           thisIsList[index]["fullName"])),
-                // );
               },
                 child:   TaskListItem(index: index,
-                  isChecked: taskList[index]["isDone"], dueDate: taskList[index]["dueDate"]??" ", taskName: data["taskName"],
-                  taskDescription: data["taskDescription"],
+                  isChecked: taskList[index]["isCompleted"]??false, dueDate: taskList[index]["dueDate"]??" ", taskName: data["taskname"],
+                  taskDescription: data["description"],taskId: taskList[index]["_id"]??" ",projectId: widget.projectId,
                 )
               //  UserTile(thisIsList[index]["fullName"]!)
 

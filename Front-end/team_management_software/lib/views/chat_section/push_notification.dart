@@ -77,14 +77,15 @@ class FirebaseNotification {
             message.notification?.android;
         message.notification?.android;
         if (notification != null && androidNotification != null) {
-            print("this is notiificaion body ${notification.body}");
+          print("message data ${message.data}");
+            print("this is notificaion body ${notification.body}");
+
           Provider.of<Data>(context, listen: false).addToUniqueListFromServer(
-            notification.body,
-            //  message.data["url"]??"this is the msg",
+              message.data["message"]??"this is the msg",
               message.data["type"]??"text",
-              message.data["sendFrom"]??"Rohit",
-              message.data["fileName"] ?? "",
-              message.data["timeStamp"]??""
+              message.data["sendBy"]??"noSendBy",
+              message.data["fileName"] ?? "noFileName",
+             // message.data["timeStamp"]??""
           );
 
           bool isLoggedIn =true;

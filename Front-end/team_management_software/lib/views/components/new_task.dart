@@ -5,7 +5,8 @@ import 'package:team_management_software/constants.dart';
 import '../../change_notifier.dart';
 
 class CreateTask extends StatefulWidget {
-  const CreateTask({Key? key}) : super(key: key);
+  String projectId;
+   CreateTask({Key? key,required this.projectId}) : super(key: key);
 
   @override
   State<CreateTask> createState() => _CreateTaskState();
@@ -35,12 +36,17 @@ class _CreateTaskState extends State<CreateTask> {
   createNewTask()async{
     if(taskNameController.text!="" ) {
       if(isPicked){
-        await context.read<Data>().addTask(taskName: taskNameController.text, taskDescription: taskDescriptionController.text,
-          dueDate: selectedDate.toString()
+        await context.read<Data>().addTaskInNotifier(taskName: taskNameController.text,
+          taskDescription: taskDescriptionController.text,
+          dueDate: selectedDate.toString(),
+          projectId: widget.projectId
+
         );
         Navigator.pop(context);
       }
-      else showSnackBArForProjectError("Select Date To Continue");
+      else {
+        showSnackBArForProjectError("Select Date To Continue");
+      }
 
     }
     else{
@@ -52,7 +58,7 @@ class _CreateTaskState extends State<CreateTask> {
 
   DateTime selectedDate=  DateTime.now();
   bool isPicked=false;
-  String date="";
+  String date=" ";
 
   selectDate(BuildContext context) async {
     final DateTime ?picked = await showDatePicker(

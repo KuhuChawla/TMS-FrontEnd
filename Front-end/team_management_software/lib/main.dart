@@ -7,6 +7,7 @@ import 'package:team_management_software/views/project_screen.dart';
 import 'package:team_management_software/views/screens/bottom_navigation.dart';
 import 'package:team_management_software/views/sign_in.dart';
 import 'package:team_management_software/views/splashscreen.dart';
+import 'package:team_management_software/views/test_screen.dart';
 import 'package:team_management_software/views/user_sign_up.dart';
 import 'change_notifier.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
             //   primaryColor:Colors.yellow[800],
             //   splashColor: Colors.yellow[800],
             // ),
-            home:  BottomNavigation()));
+            home:  HomeScreen()));
       }
     );
   }

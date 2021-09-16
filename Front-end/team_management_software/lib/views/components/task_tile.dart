@@ -9,9 +9,13 @@ class TaskListItem extends StatefulWidget {
   String taskName;
   String taskDescription;
   String dueDate;
+  String projectId;
+  String taskId;
 
   TaskListItem(
       {Key? key,
+        required  this.projectId,
+        required this.taskId,
       required this.isChecked,
       required this.index,
       required this.taskName,
@@ -24,36 +28,128 @@ class TaskListItem extends StatefulWidget {
 }
 
 class _TaskListItemState extends State<TaskListItem> {
-  String dateToShow = " ";
+  String dateToShow = "Mar 27";
+  var colorToAssign = Colors.black;
   updateList() async {
-    await context.read<Data>().updateTaskList(widget.index);
+    var updatedData={
+      "isCompleted":!widget.isChecked
+    };
+    await context.read<Data>().updateTaskList(widget.index,widget.projectId,widget.taskId,updatedData);
   }
 
   resolveDate(String date) {
+    var currDate = DateTime.now();
+    var resolvedDate;
     if (date != " ") {
-      var resolvedDate = DateTime.parse(date);
+      resolvedDate = DateTime.parse(date);
       String month;
-      if (resolvedDate.month == 9) {
-        month = "Sep";
-      } else {
-        month = resolvedDate.month.toString();
+      switch (resolvedDate.month) {
+        case 1:
+          {
+            month="Jan";
+            break;
+          }
+        case 2:
+          {
+            month="Feb";
+            break;
+          }
+        case 3:
+          {
+            month="Mar";
+            break;
+          }
+        case 4:
+          {
+            month="Apr";
+            break;
+          }
+
+        case 5:
+          {
+            month="May";
+            break;
+          }
+        case 6:
+          {
+            month="Jun";
+            break;
+          }
+        case 7:
+          {
+            month="Jul";
+            break;
+          }
+        case 8:
+          {
+            month="Aug";
+            break;
+          }
+        case 9:
+          {
+            month="Sep";
+            break;
+          }
+        case 10:
+          {
+            month="Oct";
+            break;
+          }
+        case 11:
+          {
+            month="Nov";
+            break;
+          }
+        case 12:
+          {
+            month="Dec";
+            break;
+          }
+        default :{
+          month="";
+        }
       }
+
+      //todo implement years check also
+      // if (resolvedDate.month == 9) {
+      //   month = "Sep";
+      // } else {
+      //   month = resolvedDate.month.toString();
+      // }
       dateToShow = resolvedDate.day.toString() + " " + month;
+    }
+    if (currDate.month - resolvedDate.month > 0) {
+      colorToAssign = Colors.red;
+    }
+    if (currDate.month == resolvedDate.month &&
+        currDate.day - resolvedDate.day > 0) {
+      if (currDate.day - resolvedDate.day == 1) {
+        dateToShow = "Yesterday";
+      }
+      colorToAssign = Colors.red;
+    }
+    if (currDate.month == resolvedDate.month &&
+        currDate.day - resolvedDate.day == -1) {
+      dateToShow = "Tomorrow";
+      colorToAssign=Colors.green;
+    }
+    if (currDate.day == resolvedDate.day &&
+        currDate.month == resolvedDate.month) {
+      colorToAssign = Colors.green;
+      dateToShow = "Today";
     }
   }
 
   @override
   void initState() {
-    print(widget.dueDate+"..............................");
-    resolveDate(widget.dueDate);
+    // print(widget.dueDate+"..............................");
+   resolveDate(widget.dueDate);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Slidable(
-
-
       actionExtentRatio: 0.15,
       actionPane: const SlidableDrawerActionPane(),
       secondaryActions: <Widget>[
@@ -69,7 +165,7 @@ class _TaskListItemState extends State<TaskListItem> {
           icon: Icons.delete,
           onTap: () {},
         ),
-       // SlideAction(child: Icon(Icons.add))
+        // SlideAction(child: Icon(Icons.add))
       ],
       child: Container(
         decoration: const BoxDecoration(
@@ -107,9 +203,9 @@ class _TaskListItemState extends State<TaskListItem> {
           ),
           trailing: Container(
               child: Text(
-            dateToShow,
+                dateToShow,
             style: TextStyle(
-                color: widget.isChecked ? Colors.black54 : Colors.red,
+                color: widget.isChecked ? Colors.grey[400] : colorToAssign,
                 fontSize: 12,
                 fontWeight: FontWeight.w500),
           )),
@@ -136,12 +232,12 @@ class _TaskListItemState extends State<TaskListItem> {
             ),
           ),
           leading: Transform.scale(
-            scale: 1.5,
+            scale: 1.3,
             child: Checkbox(
               checkColor: Colors.yellow[800],
               activeColor: Colors.black,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22)),
+                  borderRadius: BorderRadius.circular(8)),
               value: widget.isChecked,
               onChanged: (v) {
                 updateList();

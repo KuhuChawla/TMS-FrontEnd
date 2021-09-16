@@ -7,48 +7,72 @@ class Data with ChangeNotifier {
   HelperFunction helperFunction = HelperFunction();
   List listOfMessagesNotifier = [];
   List listOfTokensNotifier = [];
-  List listOfProjects = [
+  List listOfProjectsNotifier = [
     // {"name": "rohit","description":"good boy"},
   ];
   List taskListNotifier = [
-    {
-      "taskName": "taskName",
-      "isDone": false,
-      "taskDescription": "desc",
-      "priority": 1,
-      "status": "stuck",
-      "dueDate":"2021-09-08 00:00:00.000"
-    },
-    {
-      "taskName": "taskName2",
-      "isDone": false,
-      "taskDescription": "desc",
-      "priority": 1,
-      "status": "stuck",
-      "dueDate":"2021-09-08 00:00:00.000"
-    }
+    // {
+    //   "taskName": "taskName",
+    //   "isDone": false,
+    //   "taskDescription": "desc",
+    //   "priority": 1,
+    //   "status": "stuck",
+    //   "dueDate":"2021-09-08 00:00:00.000"
+    // },
+    // {
+    //   "taskName": "taskName2",
+    //   "isDone": false,
+    //   "taskDescription": "desc",
+    //   "priority": 1,
+    //   "status": "stuck",
+    //   "dueDate":"2021-09-08 00:00:00.000"
+    // }
   ];
-  updateTaskList(index) {
-    print("updating $index");
-    taskListNotifier[index]["isDone"] = !taskListNotifier[index]["isDone"];
+
+  getTasksListFromServerForProject(projectId)async{
+
+    taskListNotifier=await helperFunction.getAllTasksWithProjectId(projectId);
     notifyListeners();
+
+  }
+  updateTaskList(index,projectId,taskId,dataToSend) {
+    print("updating $index");
+    taskListNotifier[index]["isCompleted"] = !taskListNotifier[index]["isCompleted"];
+    notifyListeners();
+    //send a patch req   /projects/id/tasks/taskId
+    helperFunction.updateTask(projectId, taskId, dataToSend);
   }
 
-  addTask({
+  addTaskToProject(projectId,taskData)async{
+    print("adding task to projectId $projectId");
+    //send post req to project id
+   await helperFunction.addTaskToProject(projectId, taskData);
+    notifyListeners();
+   await getTasksListFromServerForProject(projectId);
+
+  }
+
+  addTaskInNotifier({
     required taskName,
     required taskDescription,
-    required dueDate
+    required dueDate,
+    required projectId
   }) {
     var newTask={
-      "taskName":taskName,
-      "taskDescription":taskDescription??"not added",
-      "isDone":false,
-      "dueDate":dueDate
+      "taskname":taskName,
+      "description":taskDescription??"not added",
+      "isCompleted":false,
+      "dueDate":dueDate,
+      "priority":"1",
+      "assigned":false,
+      "username":"user3"
     };
     print("adding task");
 
     taskListNotifier.add(newTask);
     notifyListeners();
+    addTaskToProject(projectId, newTask);
+
   }
 
   String key = "";
@@ -64,18 +88,19 @@ class Data with ChangeNotifier {
   }
 
   addProjectToList(projectDetails) {
-    listOfProjects.add(projectDetails);
+    listOfProjectsNotifier.add(projectDetails);
     notifyListeners();
     helperFunction.addProjectToDatabase(projectDetails);
   }
 
+
   removeProjectFromList(index) {
-    listOfProjects.removeAt(index);
+    listOfProjectsNotifier.removeAt(index);
     notifyListeners();
   }
 
   updateProjectListFromServer() async {
-    listOfProjects = await helperFunction.getAllProjectDetails();
+    listOfProjectsNotifier = await helperFunction.getAllProjectDetails();
     notifyListeners();
   }
 
@@ -90,6 +115,11 @@ class Data with ChangeNotifier {
     // await SecureStorageFunction.getDataFromSharedPref(key);
     // notifyListeners();
   }
+  updateMessageListFromServer(userName)async{
+    print("updating message from notifier");
+    listOfMessagesNotifier= await helperFunction.getAllMessagesByUserName(userName);
+    notifyListeners();
+  }
 
   addToUniqueList(text, key) {
     //print("func called");
@@ -99,17 +129,17 @@ class Data with ChangeNotifier {
   }
 
   addToUniqueListFromServer(
-      text, String type, String from, String fileName, timeStamp) async {
+      text, String type, String sendBy, String fileName) async {
     // listOfMessagesNotifier=[{"msg":"first text"}];
     var newMessage = {
-      "msg": text,
-      "by": "notme",
+      "message": text,
+      "sendBy": sendBy,
       "type": type,
       "fileName": fileName,
-      "timeStamp": timeStamp.toString()
+     // "timeStamp": timeStamp.toString()
     };
     //print(newMessage);
-    if (key == from) {
+    if (key == sendBy) {
       listOfMessagesNotifier.add(newMessage);
       notifyListeners();
       //   await SecureStorageFunction.saveDataToSharedPref(
@@ -148,10 +178,18 @@ class Data with ChangeNotifier {
 
   //List get getlist => listOfMessagesNotifier;
 
+
   getTokensDataFromHttp() async {
     listOfTokensNotifier = await helperFunction.getAllTokens();
     notifyListeners();
     // await SecureStorageFunction.saveTokensDataToSharedPrefs(
     //     listOfTokensNotifier);
   }
+
+  getAllMessagesByUserName(String userName)async{
+    listOfMessagesNotifier=await helperFunction.getAllMessagesByUserName(userName);
+    notifyListeners();
+  }
+
+
 }
