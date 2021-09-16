@@ -23,10 +23,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
   HelperFunction helperFunction = HelperFunction();
 
   gettingTheList() async {
-    projects =  context.watch<Data>().listOfProjectsNotifier;
+    projects = context.watch<Data>().listOfProjectsNotifier;
   }
+
   getConversationList() async {
-   var  thisIsList = context.watch<Data>().listOfTokensNotifier;
+    var thisIsList = context.watch<Data>().listOfTokensNotifier;
   }
 
   removingFromList(index) {}
@@ -66,20 +67,29 @@ class _ProjectScreenState extends State<ProjectScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-         // toolbarHeight: 35,
+          // toolbarHeight: 35,
           leadingWidth: 30,
           automaticallyImplyLeading: false,
-          leading:
-          GestureDetector(
-            onTap:(){
+          leading: GestureDetector(
+            onTap: () {
               Navigator.pop(context);
             },
             child: Container(
-              //color: Colors.red,
+                //color: Colors.red,
                 padding: EdgeInsets.only(left: 10),
-                child: Icon(Icons.arrow_back_ios,size: 25,color: Colors.yellow[800],)),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  size: 25,
+                  color: Colors.yellow[800],
+                )),
           ),
-          title: Text("Projects",style: TextStyle(color: Colors.yellow[800],fontWeight: FontWeight.w300,fontSize: 25),),
+          title: Text(
+            "Projects",
+            style: TextStyle(
+                color: Colors.yellow[800],
+                fontWeight: FontWeight.w300,
+                fontSize: 25),
+          ),
           backgroundColor: Colors.black,
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(30),
@@ -91,39 +101,40 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 isScrollable: true,
                 tabs: [
                   Container(
-                    //width: 50,
-                      child: Tab(text: 'All',height: 40,)),
-                  Tab(text: 'Favourites',height: 40),
-                  Tab(text: 'Recents',height: 40),
+                      //width: 50,
+                      height: 40,
+                      child: Tab(text: 'All')),
+                  Tab(text: 'Favourites'),
+                  Tab(text: 'Recents'),
                 ],
               ),
             ),
           ),
-
         ),
         floatingActionButton: const CreateNewProject(),
         //floatingButtonForNewProject(context),
 
-        body:
-
-        TabBarView(
+        body: TabBarView(
           children: [
-            projects.isEmpty ?  Center(child: CircularProgressIndicator(
-              color: Colors.yellow[800],
-              backgroundColor: Colors.black,
-            )
-            ):ListView.builder(
-              shrinkWrap: true,
-              //onReorder: reorderData,
-              itemCount: projects.length ?? 0,
-              itemBuilder: (BuildContext context, int index) {
-                return CardForProject(name:projects[index]["name"]??"name",
-                  description:projects[index]["description"]??"description",
-                  projectId: projects[index]["_id"],
-
-                );
-              },
-            ),
+            projects.isEmpty
+                ? Center(
+                    child: CircularProgressIndicator(
+                    color: Colors.yellow[800],
+                    backgroundColor: Colors.black,
+                  ))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    //onReorder: reorderData,
+                    itemCount: projects.length ?? 0,
+                    itemBuilder: (BuildContext context, int index) {
+                      return CardForProject(
+                        name: projects[index]["name"] ?? "name",
+                        description:
+                            projects[index]["description"] ?? "description",
+                        projectId: projects[index]["_id"],
+                      );
+                    },
+                  ),
             Container(),
             Container()
           ],
@@ -137,7 +148,8 @@ class CardForProject extends StatelessWidget {
   final name;
   final description;
   final projectId;
-  const CardForProject({Key? key, this.name, this.description, this.projectId}) : super(key: key);
+  const CardForProject({Key? key, this.name, this.description, this.projectId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -145,13 +157,13 @@ class CardForProject extends StatelessWidget {
       height: 120,
       alignment: Alignment.center,
       child: Card(
-        //color: Colors.orange[50],
+          //color: Colors.orange[50],
           shadowColor: Colors.grey[500],
 
           //elevation: 2,
           //margin: EdgeInsets.all(5),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ListTile(
             // contentPadding: EdgeInsets.only(left: 20,right:10,top:12,bottom: 10),
             title: Row(
@@ -159,11 +171,15 @@ class CardForProject extends StatelessWidget {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: (){
-                     Navigator.push(context, MaterialPageRoute(builder: (context){
-                       return TaskListScreen(projectId: projectId,projectName: name,);
-                         //TaskListScreen(name: name,);
-                     }));
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return TaskListScreen(
+                          projectId: projectId,
+                          projectName: name,
+                        );
+                        //TaskListScreen(name: name,);
+                      }));
                     },
                     child: Container(
                       color: Colors.transparent,
@@ -173,17 +189,17 @@ class CardForProject extends StatelessWidget {
                         children: [
                           Text(name,
                               style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w400)),
+                                  fontSize: 22, fontWeight: FontWeight.w400)),
                           const SizedBox(
                             height: 6,
                           ),
-                          Text(description
-                            ,
+                          Text(
+                            description,
                             textAlign: TextAlign.left,
-                            style:  TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w300),
+                            style: TextStyle(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w300),
                           )
-
                         ],
                       ),
                     ),
@@ -195,12 +211,9 @@ class CardForProject extends StatelessWidget {
                     onPressed: () {},
                   ),
                 ),
-
               ],
             ),
           )),
     );
   }
 }
-
-

@@ -1,5 +1,6 @@
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:team_management_software/views/screens/profileinfo.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -13,8 +14,16 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 30,
+        automaticallyImplyLeading: false,
+        title: Text(
+          "My Tasks",
+          style: TextStyle(
+              color: Colors.yellow[800],
+              fontWeight: FontWeight.w300,
+              fontSize: 25),
+        ),
         backgroundColor: Colors.black,
-        title: const Text("ACCOUNT"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -34,11 +43,21 @@ class _AccountState extends State<Account> {
                     height: 10,
                   ),
                   Expanded(
-                    child: Text(
-                      "Username",
-                      style: TextStyle(fontSize: 24),
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Username",
+                        style: TextStyle(fontSize: 24, color: Colors.black),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ViewProfile()));
+                          },
+                      ),
                     ),
                   ),
+                  Expanded(child: Text("Email D"))
                 ],
               ),
             ),
@@ -60,7 +79,7 @@ class _AccountState extends State<Account> {
                     const ListTile(
                       leading: Icon(
                         Icons.work,
-                        size: 38,
+                        size: 30,
                       ),
                       title: Text('My Company'),
                       subtitle: Text('KSVR'),
@@ -86,7 +105,7 @@ class _AccountState extends State<Account> {
                     const ListTile(
                       leading: Icon(
                         Icons.do_disturb_on_outlined,
-                        size: 38,
+                        size: 30,
                       ),
                       title: Text('Do not disturb'),
                       subtitle: Text('Off'),
@@ -104,7 +123,7 @@ class _AccountState extends State<Account> {
                     const ListTile(
                       leading: Icon(
                         Icons.crop_square,
-                        size: 38,
+                        size: 30,
                       ),
                       title: Text('Push'),
                       subtitle: Text('Manage'),
@@ -131,7 +150,7 @@ class _AccountState extends State<Account> {
                     const ListTile(
                       leading: Icon(
                         Icons.info_outline,
-                        size: 38,
+                        size: 30,
                       ),
                       title: Text('Android Guide'),
                     ),
@@ -148,7 +167,7 @@ class _AccountState extends State<Account> {
                     const ListTile(
                       leading: Icon(
                         Icons.help_outline,
-                        size: 38,
+                        size: 30,
                       ),
                       title: Text('Contact Support'),
                     ),
