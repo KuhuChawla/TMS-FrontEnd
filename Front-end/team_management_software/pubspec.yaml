@@ -49,4 +49,7 @@ flutter:
 
   assets:
      - images/LOGO2.png
+     - images/ProfileImage1.jpg
+     - images/background.jpg
+
 
