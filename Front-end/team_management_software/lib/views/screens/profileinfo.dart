@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_management_software/constants.dart';
 
 class ViewProfile extends StatelessWidget {
   @override
@@ -14,6 +15,17 @@ class ViewProfile extends StatelessWidget {
               fontSize: 25),
         ),
         backgroundColor: Colors.black,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              // do something
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -30,25 +42,83 @@ class ViewProfile extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
-                NewWidget(),
-                Designation(),
-                Company(),
-                SizedBox(
-                  height: 90,
-                ),
-                Container(
-                  child: Card(
-                    color: Colors.white24,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(120, 50, 0, 0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const ListTile(
-                          title: Center(
-                            child: Text(
-                              'Log Out',
-                              style: TextStyle(fontSize: 20, color: Colors.red),
-                            ),
+                      children: [
+                        Text(
+                          "Kira",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text(
+                          "Designation",
+                          style: TextStyle(fontSize: 15),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text(
+                          "Company",
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 150,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Project",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    SizedBox(
+                                      height: 2,
+                                    ),
+                                    Text(
+                                      "15",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.w300),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Tasks",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    SizedBox(
+                                      height: 2,
+                                    ),
+                                    Text(
+                                      "20",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.w300),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -57,104 +127,61 @@ class ViewProfile extends StatelessWidget {
                 ),
               ],
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 210, 0, 0),
+              child: Column(
+                children: [
+                  TextFormField(
+                    //controller: emailController,
+                    //validator: (val) {
+                    //val ??= "";
+                    //RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                    //.hasMatch(val)
+                    //? null
+                    //: errorInForm(0);
+                    //return RegExp(
+                    //r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                    //.hasMatch(val)
+                    //? null
+                    //: "Invalid email";
+                    //},
+                    decoration: Constants.kTextFormFieldDecoration("Add Bio"),
+                    maxLines: 2,
+                  ),
+                  TextFormField(
+                    //controller: emailController,
+                    //validator: (val) {
+                    //val ??= "";
+                    //RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                    //.hasMatch(val)
+                    //? null
+                    //: errorInForm(0);
+                    //return RegExp(
+                    //r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                    //.hasMatch(val)
+                    //? null
+                    //: "Invalid email";
+                    //},
+                    decoration: Constants.kTextFormFieldDecoration("Skills"),
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
 
             // Profile image
             Positioned(
               top: 30.0,
-              left: 30, // (background container size) - (circle height / 2)
+              left: 23, // (background container size) - (circle height / 2)
               child: Container(
-                height: 150.0,
-                width: 150.0,
+                height: 140.0,
+                width: 140.0,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.green,
                     image: DecorationImage(
                         image: new AssetImage("images/ProfileImage1.jpg"),
                         fit: BoxFit.cover)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Company extends StatelessWidget {
-  const Company({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        color: Colors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const ListTile(
-              title: Text(
-                'AMex Global',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Designation extends StatelessWidget {
-  const Designation({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        color: Colors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const ListTile(
-              title: Text(
-                'Senior Software Developer',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class NewWidget extends StatelessWidget {
-  const NewWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        color: Colors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const ListTile(
-              title: Text(
-                'Kira',
-                style: TextStyle(
-                  fontSize: 24,
-                ),
               ),
             ),
           ],

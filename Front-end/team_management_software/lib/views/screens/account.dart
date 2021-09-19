@@ -17,7 +17,7 @@ class _AccountState extends State<Account> {
         leadingWidth: 30,
         automaticallyImplyLeading: false,
         title: Text(
-          "My Tasks",
+          "Account",
           style: TextStyle(
               color: Colors.yellow[800],
               fontWeight: FontWeight.w300,
@@ -39,25 +39,36 @@ class _AccountState extends State<Account> {
                     ),
                   ),
                   SizedBox(
-                    width: 8,
+                    width: 30,
                     height: 10,
                   ),
-                  Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        text: "Username",
-                        style: TextStyle(fontSize: 24, color: Colors.black),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ViewProfile()));
-                          },
+                  Column(
+                    children: [
+                      Text(
+                        "Username",
+                        style: TextStyle(fontSize: 26, color: Colors.black),
                       ),
-                    ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Text("Email D"),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      GestureDetector(
+                        child: new Text(
+                          "View Profile",
+                          style: TextStyle(color: Colors.yellow[800]),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ViewProfile()));
+                        },
+                      )
+                    ],
                   ),
-                  Expanded(child: Text("Email D"))
                 ],
               ),
             ),
@@ -172,6 +183,19 @@ class _AccountState extends State<Account> {
                       title: Text('Contact Support'),
                     ),
                   ],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Card(
+                child: Center(
+                  child: const ListTile(
+                    title: Text(
+                      'Log Out',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
                 ),
               ),
             ),
