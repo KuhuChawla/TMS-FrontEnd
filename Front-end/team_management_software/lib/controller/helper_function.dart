@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 //import 'package:learning_notifications/constants.dart';
 import 'dart:convert';
 import 'package:team_management_software/constants.dart';
+import 'package:team_management_software/controller/shared_prefernce_functions.dart';
 
 class HelperFunction {
   // final FirebaseAuth _auth=FirebaseAuth.instance;
@@ -35,7 +36,7 @@ class HelperFunction {
     //print("$token $message $name");
     print("Sending notification function");
     if (type == "unsend") {
-      //print("the type is unsend");
+      //print("the type is un send");
       //print(" $token, $message,$name, $type, $fileName, $timeStamp");
     }
     if (message != "" || type == "unsend") {
@@ -71,8 +72,9 @@ class HelperFunction {
   }
 
   Future getAllTokens() async {
+    print("get all tokens with username as ${Constants.username}...............................");
     http.Response response =
-        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/users"));
+        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/users?username=${Constants.username}"));
     String data = response.body;
     var finalData = jsonDecode(data);
     //print("this is from handler$finalData");
@@ -81,12 +83,13 @@ class HelperFunction {
     return finalData["users"];
   }
 
-  sendNotificationTrial(String? sender, String? receiver, String? message) async {
+  sendNotificationTrial(String sender,String? receiver, String? message) async {
     //senderUsername , receiverUsername , message
+   //var sender= await SharedPreferencesFunctions.getUserName();
 
     print("Sending notification function");
     var data={
-      "sender":"rohit8",
+      "sender":sender,
       "receiver":receiver,
       "message":message,
     };
@@ -103,10 +106,10 @@ class HelperFunction {
     print('your response is ${response.body}');
     // }
   }
-  getAllMessagesByUserName(String userName) async{
+  getAllMessagesByUserName(String userName,String myName) async{
 
     var data={
-      "sender":"rohit8",
+      "sender":myName,
       "receiver":userName,
     };
     var finalData=jsonEncode(data);
@@ -118,16 +121,26 @@ class HelperFunction {
       body: finalData,
     );
     var returnedData=  jsonDecode(response.body);
-    print("the returned data") ;
-    print(returnedData["chats"]) ;
+    print("the returned data of $myName $userName") ;
+   // print(returnedData["chats"]) ;
     return returnedData["chats"];
 
   //  print('your response from get user by username ${response.body}');
   }
 
   Future getAllProjectDetails() async {
+    print("the projects call with user ${Constants.username}");
     http.Response response =
-        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects"));
+        await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects?username=${Constants.username}"));
+    var data = response.body;
+    var finalData = jsonDecode(data);
+    // print(finalData["message"]);
+    print("the response from get all projects is ${response.statusCode}");
+    return finalData;
+  }
+  Future getAllProjectDetails2() async {
+    http.Response response =
+    await http.get(Uri.parse("https://ems-heroku.herokuapp.com/projects"));
     var data = response.body;
     var finalData = jsonDecode(data);
     // print(finalData["message"]);
@@ -136,7 +149,7 @@ class HelperFunction {
   }
 
   Future addProjectToDatabase(dataToSend) async {
-    print("adding a project was called");
+    print("adding a project was called...........................................");
     var url = Uri.parse("https://ems-heroku.herokuapp.com/projects");
     var finalData = jsonEncode(dataToSend);
     var response = await http.post(url,
@@ -144,11 +157,11 @@ class HelperFunction {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: finalData);
-    print("response ${response.body}");
+    print("response from adding project is .........................................................${response.body}");
   }
 
   Future addTaskToProject(projectId, dataToSend) async {
-    print("adding a project was called");
+    print("adding a task was called");
     var url =
         Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId/tasks");
     var finalData = jsonEncode(dataToSend);
@@ -157,11 +170,46 @@ class HelperFunction {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: finalData);
-    print("response ${response.body} from the adding project..........");
+    print("response ${response.body} from the adding task..........");
+  }
+
+  addMemberToProject(username,projectId)async{
+
+    print("adding a member was called");
+    var dataToSend={
+      "username":username
+    };
+    var url =
+    Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId");
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: finalData);
+    print("response ${response.body} from the adding member..........");
+
+
   }
 
   updateTask(projectId,taskId,dataToSend)async{
     print("updating  a task............");
+
+  //   var tempData={
+  //     "description":"Changed Desc",
+  //     "isCompleted":false,
+  //     "taskname":"again 3.0",
+  //     "dueDate":"2021-10-20T00:00:00.000Z",
+  //     "priority":1,
+  //     "status":3,
+  //     "assignedTo":"rohit 2.0",
+  //     "assignedBy":"vikas 2.0",
+  //     "isAssigned":true
+  //   };
+  //
+  //   //dataToSend=tempData;
+  // //  projectId="61363c167582bc0023ccacae";
+  // //  taskId="6141994843f4d30023066825";
     var url =
     Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId/tasks/$taskId");
     var finalData = jsonEncode(dataToSend);
@@ -171,6 +219,22 @@ class HelperFunction {
         },
         body: finalData);
     print("response ${response.body} from the adding project..........");
+  }
+
+
+
+  updateProject({required projectId, required dataToSend})async{
+    print("updating a project");
+    var url =
+    Uri.parse("https://ems-heroku.herokuapp.com/projects/$projectId");
+    var finalData = jsonEncode(dataToSend);
+    var response = await http.patch(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: finalData);
+    print("response ${response.body} from the adding project..........");
+
   }
 
   Future getAllTasksWithProjectId(projectId) async {
@@ -183,6 +247,24 @@ class HelperFunction {
     print(response.statusCode);
     return finalData["allTasks"];
   }
+  Future getAllTasksOfUser() async {
+    var username=await SharedPreferencesFunctions.getUserName();
+    var url=Uri.parse(
+        "https://ems-heroku.herokuapp.com/Users/mytasks?username=$username");
+    http.Response response = await http.get(url);
+    String data = response.body;
+    var finalData = jsonDecode(data);
+    //print("this is from handler$finalData");
+    print("the response code from get all tasks of a user $username");
+  //  print(response.body);
+
+    if(finalData["users"]==null){
+      return [];
+    }
+
+    return finalData["users"];
+  }
+
 }
 //"https://node-notification.herokuapp.com/sendToken?token=$token&message=$message&name=$name"
 //http://192.168.29.199:4000?token=$token&message=$message&jsonDataTrial=$finalJsonData

@@ -19,34 +19,41 @@ class ConversationListPage extends StatefulWidget {
   _ConversationListPageState createState() => _ConversationListPageState();
 }
 
-var thisIsList;
+List thisIsList = [];
 
 class _ConversationListPageState extends State<ConversationListPage> {
   String? token;
-  //bool isLoading = true;
+  bool isLoading = true;
   HelperFunction helperFunction = HelperFunction();
   getConversationList() async {
-    thisIsList = context.watch<Data>().listOfTokensNotifier;
+    try {
+      thisIsList = context.watch<Data>().listOfTokensNotifier;
+    } catch (e) {
+      print(e);
+    }
   }
-  getDeviceToken()async{
- //   token = await FirebaseNotification().getToken();
+
+  updateConversationList() async {
+    try {
+      await context.read<Data>().getTokensDataFromHttp();
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
-  updateConversationList()async{
-    await context.read<Data>().getTokensDataFromHttp();
-  }
+
   @override
   void initState() {
-     getDeviceToken();
-     updateConversationList();
-    //context.read<Data>().updateTokenListFromSharedPref();
+    updateConversationList();
     super.initState();
   }
+
   @override
-  void didChangeDependencies() async{
-   await getConversationList();
-
-   //Provider.of<Data>(context, listen: false).getTokensDataFromHttp();
-
+  void didChangeDependencies() async {
+    await getConversationList();
     super.didChangeDependencies();
   }
 
@@ -54,128 +61,143 @@ class _ConversationListPageState extends State<ConversationListPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Scaffold(
-        appBar:AppBar(
-         // leadingWidth: 30,
+        appBar: AppBar(
+          // leadingWidth: 30,
           automaticallyImplyLeading: false,
 
-          title: Text("Conversations",style: TextStyle(color: Colors.yellow[800],fontWeight: FontWeight.w300,fontSize: 25),),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(onPressed: (){
-         // helperFunction.sendNotificationTrial(token, message, name)
-          helperFunction.sendDeviceTokenToDatabase();
-
-        }, icon: const Icon(Icons.logout))],
-
-        ),
-        body: thisIsList.isEmpty?Center(child: CircularProgressIndicator(
-          color: Colors.yellow[800],
+          title: Text(
+            "Conversations",
+            style: TextStyle(
+                color: Colors.yellow[800],
+                fontWeight: FontWeight.w300,
+                fontSize: 25),
+          ),
           backgroundColor: Colors.black,
-        )): ListView.builder(
-          shrinkWrap: true,
-          itemCount: thisIsList.length,
-          itemBuilder: (context, index) {
-            return
-              // thisIsList[0]["name"] == null ||thisIsList[index]["token"]==token
-              //     ? Container(
-              //   child: Text("empty"),
-              // )
-              //     :
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChattingScreen(
-                            thisIsList[index]["token"],
-                            thisIsList[index]["fullName"])),
-                  );
-                },
-                child: Slidable(
-                  actionPane: SlidableDrawerActionPane(),
-                  actionExtentRatio: 0.2,
-                  secondaryActions: <Widget>[
-                    IconSlideAction(
-                      caption: 'Archive',
-                      color: Colors.blue,
-                      icon: Icons.archive,
-                      onTap: () => null,
-                    ),
-                    IconSlideAction(
-                      caption: 'Delete',
-                      color: Colors.red[400],
-                      icon: Icons.delete,
-                      onTap: () {
-
-                      },
-                    ),
-                  ],
-
-
-                  child:  Container(
-                    padding: EdgeInsets.all(15),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.black12,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                    child: UserTile(thisIsList[index]["fullName"]!)
-
-                ),),
-              );
-          },
+          // actions: [
+          //   IconButton(onPressed: (){
+          //  // helperFunction.sendNotificationTrial(token, message, name)
+          //   //helperFunction.sendDeviceTokenToDatabase();
+          //
+          // }, icon: const Icon(Icons.logout))],
         ),
+        body: (thisIsList.isEmpty && isLoading)
+            ? Center(
+                child: CircularProgressIndicator(
+                color: Colors.yellow[800],
+                backgroundColor: Colors.black,
+              ))
+            : thisIsList.isEmpty
+                ? Center(
+                    child: Text(
+                      "Inbox is empty...",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: thisIsList.length,
+                    itemBuilder: (context, index) {
+                      return
+                          // thisIsList[0]["name"] == null ||thisIsList[index]["token"]==token
+                          //     ? Container(
+                          //   child: Text("empty"),
+                          // )
+                          //     :
+                          GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChattingScreen(
+                                    thisIsList[index]["token"],
+                                    thisIsList[index]["fullName"])),
+                          );
+                        },
+                        child: Slidable(
+                          actionPane: SlidableDrawerActionPane(),
+                          actionExtentRatio: 0.2,
+                          secondaryActions: <Widget>[
+                            IconSlideAction(
+                              caption: 'Archive',
+                              color: Colors.blue,
+                              icon: Icons.archive,
+                              onTap: () => null,
+                            ),
+                            IconSlideAction(
+                              caption: 'Delete',
+                              color: Colors.red[400],
+                              icon: Icons.delete,
+                              onTap: () {},
+                            ),
+                          ],
+                          child: Container(
+                              padding: EdgeInsets.all(15),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.black12,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                              child: UserTile(thisIsList[index]["fullName"]!,
+                                  thisIsList[index]["email"])),
+                        ),
+                      );
+                    },
+                  ),
       ),
     );
   }
 }
 
 // ignore: non_constant_identifier_names
-UserTile(String name) {
-  return
-  Container(
-     // color: Colors.red,
-      padding: const EdgeInsets.only(
-        right: 10,
-      ),
-      child: Row(
-        children: <Widget>[
-          const SizedBox(
-            width: 2,
+UserTile(String name, String email) {
+  return Container(
+    // color: Colors.red,
+    padding: const EdgeInsets.only(
+      right: 10,
+    ),
+    child: Row(
+      children: <Widget>[
+        const SizedBox(
+          width: 2,
+        ),
+        const CircleAvatar(
+          backgroundImage: AssetImage('images/avatarTMS.png'),
+          // NetworkImage(
+          //     "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper.png"),
+          maxRadius: 22,
+        ),
+        const SizedBox(
+          width: 12,
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                name,
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              Text(
+                email,
+                style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w400),
+              ),
+              // Text("Online", style: TextStyle(
+              //     color: Colors.grey.shade600, fontSize: 13),),
+            ],
           ),
-          const CircleAvatar(
-            backgroundImage: NetworkImage(
-                "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper.png"),
-            maxRadius: 20,
-          ),
-          const SizedBox(
-            width: 12,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  name,
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(
-                  height: 6,
-                ),
-                // Text("Online", style: TextStyle(
-                //     color: Colors.grey.shade600, fontSize: 13),),
-              ],
-            ),
-          ),
-        ],
-      ),
-
+        ),
+      ],
+    ),
   );
-
-
 }

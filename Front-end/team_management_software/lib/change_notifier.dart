@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_management_software/constants.dart';
 import 'package:team_management_software/controller/helper_function.dart';
 // import 'shared_pref_functions.dart';
 // import 'function_handler.dart';
@@ -6,78 +7,196 @@ import 'package:team_management_software/controller/helper_function.dart';
 class Data with ChangeNotifier {
   HelperFunction helperFunction = HelperFunction();
   List listOfMessagesNotifier = [];
+  List listOfMyTasksNotifier=[];
   List listOfTokensNotifier = [];
-  List listOfProjectsNotifier = [
-    // {"name": "rohit","description":"good boy"},
-  ];
-  List taskListNotifier = [
-    // {
-    //   "taskName": "taskName",
-    //   "isDone": false,
-    //   "taskDescription": "desc",
-    //   "priority": 1,
-    //   "status": "stuck",
-    //   "dueDate":"2021-09-08 00:00:00.000"
-    // },
-    // {
-    //   "taskName": "taskName2",
-    //   "isDone": false,
-    //   "taskDescription": "desc",
-    //   "priority": 1,
-    //   "status": "stuck",
-    //   "dueDate":"2021-09-08 00:00:00.000"
-    // }
-  ];
+  List listOfProjectsNotifier = [];
+  List taskListNotifier = [];
+  List taskListOfParticularProjectNotifier=[];
+  List taskMembersOfParticularProjectNotifier=[];
+  var allDetailsOfProjects={};
+  String key = "";
+  bool loadingScreen = false;
+  bool isLoadingContent = false;
+  bool dnd=false;
 
-  getTasksListFromServerForProject(projectId)async{
-
-    taskListNotifier=await helperFunction.getAllTasksWithProjectId(projectId);
+  triggerDnd(){
+    dnd=!dnd;
+    notifyListeners();
+  }
+  getTaskListAndMemberListForProject(index){
+    //print(taskMembersOfParticularProjectNotifier);
+   // print(allDetailsOfProjects);
+   taskMembersOfParticularProjectNotifier=allDetailsOfProjects["allProjects"][index]["members"];
+   taskListOfParticularProjectNotifier=allDetailsOfProjects["allProjects"][index]["tasks"];
     notifyListeners();
 
   }
-  updateTaskList(index,projectId,taskId,dataToSend) {
+
+  getMyTaskList() async{
+    listOfMyTasksNotifier=await helperFunction.getAllTasksOfUser();
+    notifyListeners();
+  }
+
+  getTasksListFromServerForProject(projectId) async {
+    taskListNotifier = await helperFunction.getAllTasksWithProjectId(projectId);
+    notifyListeners();
+  }
+
+  updateTaskList(index, projectId, taskId, dataToSend) {
     print("updating $index");
-    taskListNotifier[index]["isCompleted"] = !taskListNotifier[index]["isCompleted"];
+    taskListNotifier[index]["isCompleted"] =
+        !taskListNotifier[index]["isCompleted"];
     notifyListeners();
     //send a patch req   /projects/id/tasks/taskId
     helperFunction.updateTask(projectId, taskId, dataToSend);
   }
+  updateMyTaskList(index,projectId,taskId,dataToSend){
+    listOfMyTasksNotifier[index]["isCompleted"]=!listOfMyTasksNotifier[index]["isCompleted"];
+    notifyListeners();
+    helperFunction.updateTask(projectId, taskId, dataToSend);
 
-  addTaskToProject(projectId,taskData)async{
+  }
+
+  marksTaskAsComplete({required index,
+    required projectId,
+    required taskId,
+    required isCompleted,
+    required isMyTask
+  }) {
+    if(isMyTask==true){
+      listOfMyTasksNotifier[index]["isCompleted"] =
+      !listOfMyTasksNotifier[index]["isCompleted"];
+
+    }
+    else {
+      taskListNotifier[index]["isCompleted"] =
+          !taskListNotifier[index]["isCompleted"];
+    }
+    notifyListeners();
+    var dataToSend={
+      "isCompleted":isCompleted
+    };
+    helperFunction.updateTask(projectId, taskId, dataToSend);
+  }
+
+  updateIndividualTask (
+      {required projectId,
+      required taskId,
+      required dataToSend,
+      required taskName,
+      required taskDescription,
+      required assignedTo,
+      required dueDate,
+      required priority,
+      required status,
+      required index,
+      required isMyTask})
+  async{
+    if(isMyTask==true){
+      listOfMyTasksNotifier[index]["taskname"] = taskName;
+      listOfMyTasksNotifier[index]["taskDescription"] = taskDescription;
+      listOfMyTasksNotifier[index]["assignedTo"] = assignedTo;
+      listOfMyTasksNotifier[index]["dueDate"] = dueDate;
+      listOfMyTasksNotifier[index]["priority"] = priority;
+      listOfMyTasksNotifier[index]["status"] = status;
+    }
+    else
+    {
+      taskListNotifier[index]["taskname"] = taskName;
+      taskListNotifier[index]["taskDescription"] = taskDescription;
+      taskListNotifier[index]["assignedTo"] = assignedTo;
+      taskListNotifier[index]["dueDate"] = dueDate;
+      taskListNotifier[index]["priority"] = priority;
+      taskListNotifier[index]["status"] = status;
+    }
+
+    notifyListeners();
+    await helperFunction.updateTask(projectId, taskId, dataToSend);
+  }
+
+  archiveProject(projectId,bool isArchived,int index){
+    listOfProjectsNotifier[index]["isArchived"]=isArchived;
+    notifyListeners();
+   var dataToSend={
+      "isArchived":isArchived
+    };
+    helperFunction.updateProject(projectId: projectId, dataToSend: dataToSend);
+
+  }
+
+  updateIndividualProject(
+      {required projectId,
+        required projectName,
+        required projectDescription,
+        required isArchived,
+        required isDeleted,
+        required dataToSend,
+        required index,
+        required isFav
+      }
+      ){
+    listOfProjectsNotifier[index]["name"]=projectName;
+    listOfProjectsNotifier[index]["description"]=projectDescription;
+    listOfProjectsNotifier[index]["isArchived"]=isArchived;
+    listOfProjectsNotifier[index]["isActive"]=isDeleted;
+    listOfProjectsNotifier[index]["dataToSend"]=dataToSend;
+    listOfProjectsNotifier[index]["isFav"]=isFav;
+
+    notifyListeners();
+    helperFunction.updateProject(projectId: projectId, dataToSend: dataToSend);
+
+  }
+
+  addTaskToProject(projectId, taskData) async {
+    toggleLoading();
     print("adding task to projectId $projectId");
     //send post req to project id
-   await helperFunction.addTaskToProject(projectId, taskData);
-    notifyListeners();
-   await getTasksListFromServerForProject(projectId);
-
+    await helperFunction.addTaskToProject(projectId, taskData);
+    //notifyListeners();
+    await getTasksListFromServerForProject(projectId);
+    toggleLoading();
   }
 
-  addTaskInNotifier({
-    required taskName,
-    required taskDescription,
-    required dueDate,
-    required projectId
-  }) {
-    var newTask={
-      "taskname":taskName,
-      "description":taskDescription??"not added",
-      "isCompleted":false,
-      "dueDate":dueDate,
-      "priority":"1",
-      "assigned":false,
-      "username":"user3"
-    };
-    print("adding task");
+  addMemberToList(memberName,projectId)async{
+    print("adding");
+    taskMembersOfParticularProjectNotifier.add({
+      "memberName":memberName
+    });
+    notifyListeners();
+    await helperFunction.addMemberToProject(memberName, projectId);
+  }
 
+
+
+  addTaskInNotifier(
+      {required taskName,
+      required taskDescription,
+      required dueDate,
+      required projectId,
+        required assignedTo,
+        required priority,
+        required status
+      }) async{
+
+    var newTask = {
+      "assignedBy":Constants.username,
+      "taskname": taskName,
+      "description": taskDescription ?? "Add description..",
+      "isCompleted": false,
+      "dueDate": dueDate,
+      "priority": priority,
+      "status":status,
+      "isAssigned": true,
+      "assignedTo": assignedTo
+    };
+    print("adding task to $assignedTo");
     taskListNotifier.add(newTask);
     notifyListeners();
-    addTaskToProject(projectId, newTask);
+    await addTaskToProject(projectId, newTask);
 
   }
 
-  String key = "";
-  bool loadingScreen = false;
-  bool isLoadingContent = false;
+
   toggleLoading() {
     loadingScreen = !loadingScreen;
     notifyListeners();
@@ -87,12 +206,23 @@ class Data with ChangeNotifier {
     key = newKey;
   }
 
-  addProjectToList(projectDetails) {
-    listOfProjectsNotifier.add(projectDetails);
-    notifyListeners();
-    helperFunction.addProjectToDatabase(projectDetails);
-  }
+  addProjectToList(projectDetails) async {
+   // print("reaching here..........................................................1");
+     // listOfProjectsNotifier.add(projectDetails);
+     // notifyListeners();
+   // toggleLoading();
+    await helperFunction.addProjectToDatabase(projectDetails);
+    await updateProjectListFromServer();
+    //  trial with delay
+    // Future.delayed(const Duration(milliseconds: 500), () {
+    //   // setState(() {
+    //   //   // Here you can write your code for open new view
+    //   // });
 
+   // });
+     print("reaching here..........................................................");
+     toggleLoading();
+  }
 
   removeProjectFromList(index) {
     listOfProjectsNotifier.removeAt(index);
@@ -100,7 +230,12 @@ class Data with ChangeNotifier {
   }
 
   updateProjectListFromServer() async {
-    listOfProjectsNotifier = await helperFunction.getAllProjectDetails();
+   // listOfProjectsNotifier =await helperFunction.getAllProjectDetails2();
+   allDetailsOfProjects= await helperFunction.getAllProjectDetails().then((value) {
+     print("the value is $value");
+      listOfProjectsNotifier=value["allProjects"];
+      return value;
+    });
     notifyListeners();
   }
 
@@ -115,9 +250,10 @@ class Data with ChangeNotifier {
     // await SecureStorageFunction.getDataFromSharedPref(key);
     // notifyListeners();
   }
-  updateMessageListFromServer(userName)async{
+  updateMessageListFromServer(userName,myName) async {
     print("updating message from notifier");
-    listOfMessagesNotifier= await helperFunction.getAllMessagesByUserName(userName);
+    listOfMessagesNotifier =
+        await helperFunction.getAllMessagesByUserName(userName,myName);
     notifyListeners();
   }
 
@@ -131,14 +267,16 @@ class Data with ChangeNotifier {
   addToUniqueListFromServer(
       text, String type, String sendBy, String fileName) async {
     // listOfMessagesNotifier=[{"msg":"first text"}];
+    print("in the adding list");
     var newMessage = {
       "message": text,
       "sendBy": sendBy,
       "type": type,
       "fileName": fileName,
-     // "timeStamp": timeStamp.toString()
+      // "timeStamp": timeStamp.toString()
     };
-    //print(newMessage);
+    print("the key is $key amd send by is $sendBy");
+    // print(newMessage);
     if (key == sendBy) {
       listOfMessagesNotifier.add(newMessage);
       notifyListeners();
@@ -178,18 +316,16 @@ class Data with ChangeNotifier {
 
   //List get getlist => listOfMessagesNotifier;
 
-
   getTokensDataFromHttp() async {
     listOfTokensNotifier = await helperFunction.getAllTokens();
     notifyListeners();
     // await SecureStorageFunction.saveTokensDataToSharedPrefs(
     //     listOfTokensNotifier);
   }
-
-  getAllMessagesByUserName(String userName)async{
-    listOfMessagesNotifier=await helperFunction.getAllMessagesByUserName(userName);
-    notifyListeners();
-  }
-
-
+  //
+  // getAllMessagesByUserName(String userName) async {
+  //   listOfMessagesNotifier =
+  //       await helperFunction.getAllMessagesByUserName(userName);
+  //   notifyListeners();
+  // }
 }

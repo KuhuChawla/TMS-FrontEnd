@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'chat_section/push_notification.dart';
 import 'welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,17 +14,43 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final splashDelay = 6;
+ // var token;
+  // FirebaseNotification firebaseNotification=FirebaseNotification();
+  //
+  // getDeviceToken()async{
+  //   token= await firebaseNotification.getToken();
+  //   print("token........... $token");
+  //
+  // }
+  var timer;
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    timer.cancel();
+
+  }
 
   @override
   void initState() {
+    //firebaseNotification.initialise(context);
+   // firebaseNotification.subscribeToTopic("puppy");
+    //getDeviceToken();
+
     super.initState();
-    _loadWidget();
+    var _duration = Duration(seconds: splashDelay);
+    timer=Timer(_duration, navigationPage);
+
   }
 
-  _loadWidget() async {
-    var _duration = Duration(seconds: splashDelay);
-    return Timer(_duration, navigationPage);
-  }
+
+  //
+  // _loadWidget() async {
+  //   var _duration = Duration(seconds: splashDelay);
+  //   var timer=Timer(_duration, navigationPage);
+  //
+  //   return Timer(_duration, navigationPage);
+  // }
 
   void navigationPage() {
     Navigator.pushReplacement(context,
@@ -32,6 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: InkWell(

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:team_management_software/constants.dart';
+import 'package:team_management_software/controller/shared_prefernce_functions.dart';
 import 'package:team_management_software/views/chat_section/coversation_list.dart';
+import 'package:team_management_software/views/chat_section/push_notification.dart';
 import 'package:team_management_software/views/home_screen.dart';
 import 'package:team_management_software/views/screens/account.dart';
-import 'package:team_management_software/views/screens/inbox.dart';
 import 'package:team_management_software/views/screens/my_tasks.dart';
 import 'package:team_management_software/views/screens/search.dart';
-import 'package:team_management_software/views/project_screen.dart';
+import 'package:team_management_software/views/project_list_screen.dart';
+import 'package:team_management_software/controller/http_functions.dart';
+import 'package:team_management_software/views/screens/search2.dart';
+import 'package:team_management_software/views/screens/search3.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key? key}) : super(key: key);
@@ -16,13 +21,44 @@ class BottomNavigation extends StatefulWidget {
 
 /// This is the private State class that goes with MyStatefulWidget.
 class _BottomNavigationState extends State<BottomNavigation> {
+
   int _selectedIndex = 0;
-  final screen = [ProjectScreen(), MyTasks(projectId: "613462dcd02e903c1cbdf701",),  ConversationListPage(), SearchList(), Account()];
+  final screen = [const ProjectListScreen(), MyTasks(projectId: "614606f2f1d7f13cf85209ab",),  ConversationListPage(), const Search2(), const Account()];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+  // getToken()async{
+  //  // FirebaseNotification().getToken().then((value) =>
+  //  //     HttpFunctions().updateTokenOfUserOnSignIn(value)
+  //  // );
+  // }
+  getToken() async {
+   // await FirebaseNotification().initialise(context);
+    FirebaseNotification().getToken().then((value) async{
+      print("the token from bottom navigation$value");
+    await  HttpFunctions().updateTokenOfUserOnSignIn(value);
+
+    });
+  }
+  // updateSharedPrefData()async{
+  //
+  //   Constants.username=await SharedPreferencesFunctions.getUserName();
+  //   Constants.role=await SharedPreferencesFunctions.getRole();
+  //   Constants.userDetails=await SharedPreferencesFunctions.getUserDetails();
+  //
+  // }
+
+  @override
+  void initState() {
+    FirebaseNotification().initialise(context);
+    //updateSharedPrefData();
+    getToken();
+
+    // TODO: implement initState
+    super.initState();
   }
 
   @override

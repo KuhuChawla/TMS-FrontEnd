@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:team_management_software/controller/helper_function.dart';
+import 'package:team_management_software/controller/shared_prefernce_functions.dart';
 import 'package:team_management_software/views/chat_section/audio_section/soundplayer_class.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +16,6 @@ import 'package:team_management_software/views/chat_section/tiles/video_tile.dar
 import 'package:team_management_software/views/components/appbar_chat_screen.dart';
 import 'package:team_management_software/views/components/loading_indicator.dart';
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -27,24 +26,16 @@ import 'audio_section/soundplayer_ui.dart';
 import 'chewie_player.dart';
 import 'pdf_api.dart';
 import 'package:focused_menu/focused_menu.dart';
-// import 'audio_player/audio_player.dart';
-// import 'package:learning_notifications/audio_player/sound_player.dart';
-// import 'package:learning_notifications/audio_player/sound_player_ui.dart';
-// import 'package:learning_notifications/audio_player/sound_recorder.dart';
-// import 'package:learning_notifications/function_handler.dart';
-// import 'package:learning_notifications/testing_page.dart';
-// import 'dart:convert';
-//  import 'dart:ffi';
-//  import 'dart:io';
-//  import 'dart:async';
 import 'package:async/async.dart';
  import 'package:http/http.dart' as http;
 
  import 'package:path/path.dart' as path;
 
+
 // ignore: must_be_immutable
 class ChattingScreen extends StatefulWidget {
   String? token, name;
+
 
   // ignore: use_key_in_widget_constructors
   ChattingScreen(this.token, this.name);
@@ -53,6 +44,7 @@ class ChattingScreen extends StatefulWidget {
 }
 
 class _ChattingScreenState extends State<ChattingScreen> {
+  String myName=" ";
  final soundRecorder = SoundRecorder();
   final soundPlayer=SoundPlayer();
   Color? myColor = Colors.green;
@@ -99,18 +91,6 @@ class _ChattingScreenState extends State<ChattingScreen> {
     }
   }
 
-  addingMessageToList(
-      String text, String type, String fileName) async {
-    if (text != "") {
-      context.read<Data>().addToUniqueList({
-        "message": text,
-        "sendBy": "me",
-        "type": type,
-        "fileName": fileName,
-      }, widget.name!);
-    }
-  }
-
   uploadFileToServer(File imageFile,filename,type)async{
 
       // open a bytestream
@@ -129,9 +109,9 @@ class _ChattingScreenState extends State<ChattingScreen> {
       var multipartFile =  http.MultipartFile('files', stream, length,
           filename: path.basename(imageFile.path));
 
-      // add file to multipart
+
       request.files.add(multipartFile);
-      request.fields["sender"]="rohit8";
+      request.fields["sender"]=myName;
       request.fields["receiver"]=widget.name!;
       request.fields["fileName"]=filename;
       request.fields["type"]=type;
@@ -155,6 +135,19 @@ class _ChattingScreenState extends State<ChattingScreen> {
         showSpinner = false;
       });
     }
+
+  addingMessageToList(
+      String text, String type, String fileName) async {
+    if (text != "") {
+      context.read<Data>().addToUniqueList({
+        "message": text,
+        "sendBy": myName,
+        "type": type,
+        "fileName": fileName,
+      }, widget.name!);
+    }
+  }
+
 
 
 
@@ -206,14 +199,24 @@ class _ChattingScreenState extends State<ChattingScreen> {
   //   }
   // }
   updateMessageList()async{
-  await  context.read<Data>().updateMessageListFromServer(widget.name!);
+  await  context.read<Data>().updateMessageListFromServer(widget.name!,myName);
   setState(() {
     isLoading = false;
   });
   }
+  getUserFromSharedPref()async{
+   try {
+      myName = await SharedPreferencesFunctions.getUserName();
+      print(myName+"mynameeee.....................");
+     await updateMessageList();
+    }catch(e){
+     print(e);
+   }
+  }
   @override
   void initState() {
-    updateMessageList();
+    getUserFromSharedPref();
+    //updateMessageList();
 
     context.read<Data>().updateKey(widget.name!);
      soundRecorder.init();
@@ -266,7 +269,7 @@ class _ChattingScreenState extends State<ChattingScreen> {
                             var length = listOfMessages.length;
                             var currentIndex =
                             listOfMessages[length - index - 1];
-                            bool sendByMe = currentIndex["sendBy"] == "rohit8";
+                            bool sendByMe = currentIndex["sendBy"] == myName;
                             return
                                Container(
                                  //child:
@@ -323,9 +326,20 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                       borderRadius:
                                       BorderRadius
                                           .circular(10),
-                                      child: Image.network(
-                                        "${currentIndex["message"]}",
-                                      )),
+                                      child:
+                                     //  Image.network(
+                                     //    "${currentIndex["message"]}",
+                                     //
+                                     // ),
+                                    FadeInImage.assetNetwork(
+                                   //  imageScale: 0.5,
+                                      placeholder: 'images/placeholder.jpg', image: "${currentIndex["message"]}",
+                                    imageErrorBuilder: (object,_,abc){
+                                      return Container(
+                                        child:Text("Failed to load image")
+                                      );
+                                    },)
+                                  ),
                                 ),
                                 length - index - 1,
                                 widget.name!,
@@ -340,9 +354,19 @@ class _ChattingScreenState extends State<ChattingScreen> {
                                     borderRadius:
                                     BorderRadius
                                         .circular(10),
-                                    child: Image.network(
-                                      "${currentIndex["message"]}",
-                                    )),
+                                    child:
+                                    FadeInImage.assetNetwork(
+                                      //  imageScale: 0.5,
+                                      placeholder: 'images/placeholder.jpg', image: "${currentIndex["message"]}",
+                                      imageErrorBuilder: (object,_,abc){
+                                        return Container(
+                                            child:Text("Failed to load image")
+                                        );
+                                      },)
+                                   //  Image.network(
+                                   //    "${currentIndex["message"]}",
+                                   // )
+                              ),
                               )
                                   : currentIndex["type"] == "pdf"
                                   ?
@@ -684,7 +708,7 @@ class _ChattingScreenState extends State<ChattingScreen> {
                               curve: Curves.easeIn);
 
                           if(text!="") {
-                            helperFunction.sendNotificationTrial("rohit8", widget.name,text);
+                            helperFunction.sendNotificationTrial(myName,widget.name,text);
                           }
                          // print("sent");
                            //saveDataToSharedPrefs();

@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:team_management_software/views/screens/profileinfo.dart';
+import 'package:team_management_software/constants.dart';
+import 'package:team_management_software/controller/shared_prefernce_functions.dart';
+import 'package:team_management_software/views/screens/admin_profile_info.dart';
+import 'package:team_management_software/views/screens/user_profile_info.dart';
+import 'package:team_management_software/views/welcome_screen.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -10,6 +16,30 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+
+  String userName="",email="";
+  bool isLoaded=false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print("the role is ${Constants.role}");
+    getFromSharedPref();
+    super.initState();
+  }
+
+  getFromSharedPref() async{
+   var userDetails=await  SharedPreferencesFunctions.getUserDetails();
+  var finalData=jsonDecode(userDetails);
+  userName=finalData["username"];
+  email=finalData["email"];
+  setState(() {
+    isLoaded=true;
+  });
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,46 +55,64 @@ class _AccountState extends State<Account> {
         ),
         backgroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
+      body:  SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Icon(
-                      Icons.account_circle,
-                      size: 100,
+                    child:
+                    Container(
+                      height: 140.0,
+                      width: 140.0,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.green,
+                          image: DecorationImage(
+                              image: new AssetImage("images/avatarTMS.png"),
+                              fit: BoxFit.cover)),
                     ),
+
                   ),
                   SizedBox(
-                    width: 30,
+                    width: 25,
                     height: 10,
                   ),
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Username",
+                       userName,
                         style: TextStyle(fontSize: 26, color: Colors.black),
                       ),
                       SizedBox(
-                        height: 3,
+                        height: 5,
                       ),
-                      Text("Email D"),
+                      Text(
+                        Constants.role=="admin"?"(Administrator)":"(User)",
+                        style: TextStyle(fontSize: 20, color: Colors.teal),
+                      ),
                       SizedBox(
-                        height: 3,
+                        height: 5,
+                      ),
+                      Text(email,style: TextStyle(color: Colors.grey),),
+                      SizedBox(
+                        height: 8,
                       ),
                       GestureDetector(
                         child: new Text(
-                          "View Profile",
+                          " View Profile",
                           style: TextStyle(color: Colors.yellow[800]),
                         ),
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ViewProfile()));
+                                  builder: (context) => Constants.role=="admin"?ViewAdminProfile():ViewUserProfile()));
                         },
                       )
                     ],
@@ -73,7 +121,7 @@ class _AccountState extends State<Account> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding:  EdgeInsets.only(top: 20,bottom: 10,left: 10),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -93,56 +141,56 @@ class _AccountState extends State<Account> {
                         size: 30,
                       ),
                       title: Text('My Company'),
-                      subtitle: Text('KSVR'),
+                      subtitle: Text('UIET, Panjab University'),
                     ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Notifications",
-                ),
-              ),
-            ),
-            Container(
-              child: Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const ListTile(
-                      leading: Icon(
-                        Icons.do_disturb_on_outlined,
-                        size: 30,
-                      ),
-                      title: Text('Do not disturb'),
-                      subtitle: Text('Off'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const ListTile(
-                      leading: Icon(
-                        Icons.crop_square,
-                        size: 30,
-                      ),
-                      title: Text('Push'),
-                      subtitle: Text('Manage'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Align(
+            //     alignment: Alignment.centerLeft,
+            //     child: Text(
+            //       "Notifications",
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   child: Card(
+            //     child: Column(
+            //       mainAxisSize: MainAxisSize.min,
+            //       children: const <Widget>[
+            //         ListTile(
+            //           leading: Icon(
+            //             Icons.do_disturb_on_outlined,
+            //             size: 30,
+            //           ),
+            //           title: Text('Do not disturb'),
+            //           subtitle: Text('Off'),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   padding: const EdgeInsets.only(bottom: 8),
+            //   child: Card(
+            //     child: Column(
+            //       mainAxisSize: MainAxisSize.min,
+            //       children: <Widget>[
+            //         const ListTile(
+            //           leading: Icon(
+            //             Icons.crop_square,
+            //             size: 30,
+            //           ),
+            //           title: Text('Push'),
+            //           subtitle: Text('Manage'),
+            //         ),
+            //       ],q
+            //     ),
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
@@ -186,14 +234,22 @@ class _AccountState extends State<Account> {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Card(
-                child: Center(
-                  child: const ListTile(
-                    title: Text(
-                      'Log Out',
-                      style: TextStyle(color: Colors.red),
+            GestureDetector(
+              onTap: (){
+                SharedPreferencesFunctions.setIsUserLoggedIn(false);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+                  return WelcomeScreen();
+                }));
+              },
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Card(
+                  child: Center(
+                    child: const ListTile(
+                      title: Text(
+                        'Log Out',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ),
                 ),

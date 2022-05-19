@@ -2,10 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:team_management_software/controller/http_functions.dart';
 import 'package:team_management_software/views/sign_in.dart';
 import 'package:sizer/sizer.dart';
-import 'package:team_management_software/views/sign_up.dart';
+import 'package:team_management_software/views/admin_sign_up.dart';
+import 'package:team_management_software/views/user_sign_up.dart';
 import '../constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
+
+  Future<void> _dialogToChooseRole(context,bool isSignUp) async {
+
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            //actionsAlignment: MainAxisAlignment.center,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            title:  Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Please Select Role"),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListBody(
+                    children:  <Widget>[
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                              isSignUp?AdminSignUp():SignInPage(role:"admin") ));
+                       //   Navigator.pop(context);
+                        },
+                        child:Container(
+                          padding:EdgeInsets.only(bottom: 5),
+                          child:Constants.kWidgetForStatusAndPriority(isSignUp?"Admin Sign Up":"Admin Sign In", Colors.green[200]),
+                        )
+                      ),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                              isSignUp?UserSignUp():SignInPage(role:"user") ));
+                         // Navigator.pop(context);
+                        },
+                        child:  Constants.kWidgetForStatusAndPriority(isSignUp?"User Sign Up":"User Sign In",  Constants.buttonColor,),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+
+
    WelcomeScreen({Key? key}) : super(key: key);
  final HttpFunctions httpFunctions=HttpFunctions();
   @override
@@ -48,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
                     onPressed: () async {
                       // var response= await  httpFunctions.signInUser();
                       // print("response from welcome screen $response");
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignInPage()));
+                     _dialogToChooseRole(context, false);
                     },
                     child: Text(
                       "SIGN IN",
@@ -67,7 +121,8 @@ class WelcomeScreen extends StatelessWidget {
                         side: const BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.circular(14.sp)),
                     onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignUpPage() ));
+                      _dialogToChooseRole(context,true);
+
                       // httpFunctions.registerUser(
                       // );
                     },
